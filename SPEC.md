@@ -338,10 +338,12 @@ export type Rule = (invoice: Invoice, ctx: CheckContext) => Finding[]
 
 ### Design direction
 
-This is a dense operational tool for someone processing forty invoices before lunch, not a landing page. The aesthetic follows from that: information density, no decorative motion, no hero. Take the visual cue from the artifact itself — an Austrian construction invoice — rather than from SaaS convention.
+This is a dense operational tool for someone processing forty invoices before lunch, not a landing page. The aesthetic follows from that: information density, no decorative motion, no hero.
+
+Revised from an earlier "paper ground / not from SaaS convention" direction to white, modern, and rounded — full spec in `DESIGN.md` at the repo root, with live components in `packages/design-system` (`npm run storybook -w @rechnungsabgleich/design-system`). What carries over unchanged from the original direction:
 
 - **Type:** a real utility grotesk for the interface, and a **tabular-figure monospace for every number in the app**. Amounts must align on the decimal comma down the column. If figures don't align, the tool is wrong before you've read it.
-- **Colour:** near-neutral paper ground so the rendered PDF isn't fighting the chrome. Exactly two semantic accents — one for `error`, one for `warning` — and nothing else coloured. When ninety percent of the screen is grey, a single red row is unmissable.
+- **Colour:** exactly two semantic accents — one for `error`, one for `warning` — and nothing else coloured (now against a white ground rather than warm paper; see `DESIGN.md`). A single red row must stay unmissable against the rest of the screen.
 - **Signature element:** the **gutter** between PDF and table. A finding draws a line from the row in the table to its location in the document. That single connective gesture is the whole product thesis — the two representations of one invoice, and where they diverge.
 - Respect `prefers-reduced-motion`. Visible keyboard focus everywhere. It won't be usable on a phone; make it degrade to a readable single-column stack rather than pretending otherwise.
 

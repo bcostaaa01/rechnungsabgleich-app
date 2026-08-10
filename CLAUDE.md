@@ -14,7 +14,9 @@ Portfolio piece targeting reebuild GmbH (Wien).
 
 **No backend. No database. No auth. No file persistence.** Everything runs
 in the browser. Static deploy only (Vercel/Netlify). If a task seems to need
-a server, it's out of scope — check `SPEC.md` §1 before adding one.
+a server, it's out of scope — check `SPEC.md` §1 before adding one. (The
+`packages/design-system` Storybook instance is a dev-time tool the running
+app never talks to at runtime — it doesn't count as a backend.)
 
 ## Tech stack
 
@@ -28,6 +30,15 @@ this in mind when `SPEC.md` and reality disagree on this one point.
 
 Do not introduce a different framework, UI kit, or state library without
 asking — the stack is otherwise deliberately narrow (see `SPEC.md` §2).
+
+**Repo layout is an npm workspaces monorepo**, not a single package: root
+`package.json` has a `workspaces` field; `packages/design-system` is a
+Storybook-based component library (`Button`, `Badge`, shared Tailwind
+tokens) the main app depends on via
+`@rechnungsabgleich/design-system`. Design tokens live in
+`packages/design-system/src/tokens.css` — edit them there, not in the
+main app's `src/assets/base.css` (which just imports them). See
+`DESIGN.md` at the repo root for the visual language itself.
 
 ## Non-negotiable architecture rule
 
