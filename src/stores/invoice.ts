@@ -1,6 +1,6 @@
 import Big from 'big.js'
 import { defineStore } from 'pinia'
-import { markRaw, ref } from 'vue'
+import { ref, shallowRef } from 'vue'
 import type { Invoice } from '@/core/cii/types'
 import { parseCiiXml } from '@/core/cii/parse'
 import type { Finding } from '@/core/checks/types'
@@ -17,13 +17,17 @@ const DEFAULT_TOLERANCE = new Big('0.01')
 export const useInvoiceStore = defineStore('invoice', () => {
   const fileName = ref<string | null>(null)
   const xml = ref<string | null>(null)
-  // Invoice/doc/findings all carry Big instances or complex pdf.js class
-  // instances -- markRaw so Vue's reactivity proxy never wraps them. Each
-  // is replaced wholesale on load, so the ref itself still triggers
-  // updates; only the contents stay unproxied.
-  const invoice = ref<Invoice | null>(null)
-  const doc = ref<PDFDocumentProxy | null>(null)
-  const findings = ref<Finding[]>([])
+  // shallowRef, not ref+markRaw: Invoice/findings carry Big instances and
+  // doc is a pdf.js class instance with private fields -- markRaw alone
+  // only stops the runtime reactivity proxy, but Vue's UnwrapRef type
+  // still recurses into a plain ref's type and mangles PDFDocumentProxy's
+  // #private fields into an incompatible structural type. shallowRef
+  // sidesteps UnwrapRef entirely, so it fixes both the runtime concern and
+  // the type error. Each is still replaced wholesale on load, so the ref
+  // itself keeps triggering updates.
+  const invoice = shallowRef<Invoice | null>(null)
+  const doc = shallowRef<PDFDocumentProxy | null>(null)
+  const findings = shallowRef<Finding[]>([])
   const error = ref<string | null>(null)
   const loading = ref(false)
 
@@ -46,9 +50,9 @@ export const useInvoiceStore = defineStore('invoice', () => {
       const parsedInvoice = parseCiiXml(attachment.xml)
       const pdfText = await extractDocumentText(loadedDoc)
 
-      doc.value = markRaw(loadedDoc)
-      invoice.value = markRaw(parsedInvoice)
-      findings.value = markRaw(runChecks(parsedInvoice, { tolerance: DEFAULT_TOLERANCE, pdfText }))
+      doc.value = loadedDoc
+      invoice.value = parsedInvoice
+      findings.value = runChecks(parsedInvoice, { tolerance: DEFAULT_TOLERANCE, pdfText })
     } catch (caught) {
       error.value = caught instanceof Error ? caught.message : String(caught)
     } finally {
