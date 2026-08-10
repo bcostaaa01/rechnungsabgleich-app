@@ -7,6 +7,7 @@ import { useFileDrop } from '@/composables/useFileDrop'
 const emit = defineEmits<{ select: [file: File] }>()
 
 const fileInput = ref<HTMLInputElement | null>(null)
+const loadingSample = ref(false)
 const { isDragging, onDragEnter, onDragLeave, onDrop } = useFileDrop((file) => emit('select', file))
 
 function onFileInputChange(event: Event) {
@@ -20,10 +21,18 @@ function openFilePicker() {
   fileInput.value?.click()
 }
 
+// Gives immediate feedback on click -- otherwise the button sits idle
+// during the fetch, before store.loading even exists to show its own
+// spinner, and a click can look like it did nothing.
 async function loadSample() {
-  const response = await fetch('/beispielrechnung.pdf')
-  const blob = await response.blob()
-  emit('select', new File([blob], 'beispielrechnung.pdf', { type: 'application/pdf' }))
+  loadingSample.value = true
+  try {
+    const response = await fetch('/beispielrechnung.pdf')
+    const blob = await response.blob()
+    emit('select', new File([blob], 'beispielrechnung.pdf', { type: 'application/pdf' }))
+  } finally {
+    loadingSample.value = false
+  }
 }
 </script>
 
@@ -46,6 +55,8 @@ async function loadSample() {
       class="sr-only"
       @change="onFileInputChange"
     />
-    <Button variant="ghost" @click="loadSample">Beispielrechnung laden</Button>
+    <Button variant="ghost" :disabled="loadingSample" @click="loadSample">
+      {{ loadingSample ? 'Wird geladen …' : 'Beispielrechnung laden' }}
+    </Button>
   </div>
 </template>
