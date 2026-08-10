@@ -1,6 +1,6 @@
 import Big from 'big.js'
 import { describe, expect, it } from 'vitest'
-import { add, equalWithin, formatEUR, multiply, parseAmount, round2 } from '@/core/money'
+import { add, equalWithin, formatEUR, formatQuantity, multiply, parseAmount, round2 } from '@/core/money'
 
 describe('parseAmount', () => {
   it('parses a plain decimal string', () => {
@@ -131,5 +131,27 @@ describe('formatEUR', () => {
 
   it('does not show a negative sign for a value that rounds to zero', () => {
     expect(formatEUR(new Big('-0.001'))).toBe('0,00 €')
+  })
+})
+
+describe('formatQuantity', () => {
+  it('formats a whole number without a trailing decimal', () => {
+    expect(formatQuantity(new Big('1'))).toBe('1')
+  })
+
+  it('formats a fractional quantity with a comma, no forced decimal places', () => {
+    expect(formatQuantity(new Big('12.5'))).toBe('12,5')
+  })
+
+  it('preserves precision beyond two decimal places, unlike formatEUR', () => {
+    expect(formatQuantity(new Big('0.375'))).toBe('0,375')
+  })
+
+  it('formats negative quantities with a leading minus', () => {
+    expect(formatQuantity(new Big('-2.5'))).toBe('-2,5')
+  })
+
+  it('adds thousand separators to large quantities', () => {
+    expect(formatQuantity(new Big('12500'))).toBe('12.500')
   })
 })

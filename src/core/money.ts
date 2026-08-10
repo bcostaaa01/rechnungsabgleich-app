@@ -39,10 +39,23 @@ export function equalWithin(a: Money, b: Money, tolerance: Money): boolean {
   return a.minus(b).abs().lte(tolerance)
 }
 
+function withThousandsSeparator(digits: string): string {
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+}
+
 export function formatEUR(value: Money): string {
   const rounded = round2(value)
   const negative = rounded.lt(0)
   const [intPart, decPart] = rounded.abs().toFixed(2).split('.') as [string, string]
-  const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-  return `${negative ? '-' : ''}${withThousands},${decPart} €`
+  return `${negative ? '-' : ''}${withThousandsSeparator(intPart)},${decPart} €`
+}
+
+// German decimal-comma formatting for a bare quantity -- no currency
+// symbol, and no forced decimal places (a whole-number quantity like "1"
+// shows as "1", not "1,00"). Used for the Menge column, never for money.
+export function formatQuantity(value: Quantity): string {
+  const negative = value.lt(0)
+  const [intPart, decPart] = value.abs().toString().split('.') as [string, string | undefined]
+  const formatted = withThousandsSeparator(intPart)
+  return `${negative ? '-' : ''}${formatted}${decPart ? ',' + decPart : ''}`
 }
