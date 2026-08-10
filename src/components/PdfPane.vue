@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from 'vue'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { renderPageToCanvas } from '@/pdf/renderPage'
 import { Button } from '@rechnungsabgleich/design-system'
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from '@lucide/vue'
 
 const props = defineProps<{ doc: PDFDocumentProxy | null }>()
 
@@ -74,13 +75,31 @@ function zoomIn() {
         </div>
       </div>
       <div class="flex shrink-0 items-center justify-center gap-4 border-t border-border px-3 py-2 text-sm">
-        <Button variant="ghost" :disabled="currentPage <= 1" @click="previousPage">◀</Button>
+        <Button
+          variant="ghost"
+          :disabled="currentPage <= 1"
+          aria-label="Vorherige Seite"
+          @click="previousPage"
+        >
+          <ChevronLeft :size="16" aria-hidden="true" />
+        </Button>
         <span class="num">Seite {{ currentPage }} / {{ doc.numPages }}</span>
-        <Button variant="ghost" :disabled="currentPage >= doc.numPages" @click="nextPage">▶</Button>
+        <Button
+          variant="ghost"
+          :disabled="currentPage >= doc.numPages"
+          aria-label="Nächste Seite"
+          @click="nextPage"
+        >
+          <ChevronRight :size="16" aria-hidden="true" />
+        </Button>
         <span class="mx-2 h-4 border-l border-border" />
-        <Button variant="ghost" :disabled="scale <= MIN_SCALE" @click="zoomOut">−</Button>
+        <Button variant="ghost" :disabled="scale <= MIN_SCALE" aria-label="Verkleinern" @click="zoomOut">
+          <ZoomOut :size="16" aria-hidden="true" />
+        </Button>
         <span class="num w-12 text-center">{{ Math.round(scale * 100) }}%</span>
-        <Button variant="ghost" :disabled="scale >= MAX_SCALE" @click="zoomIn">+</Button>
+        <Button variant="ghost" :disabled="scale >= MAX_SCALE" aria-label="Vergrößern" @click="zoomIn">
+          <ZoomIn :size="16" aria-hidden="true" />
+        </Button>
       </div>
     </template>
   </div>

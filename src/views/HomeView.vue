@@ -7,6 +7,7 @@ import PositionTable from '@/components/PositionTable.vue'
 import FindingList from '@/components/FindingList.vue'
 import ProfileBanner from '@/components/ProfileBanner.vue'
 import { Badge, Button, Spinner } from '@rechnungsabgleich/design-system'
+import { AlertCircle, RotateCcw } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 
 const store = useInvoiceStore()
@@ -51,9 +52,15 @@ const {
       <span>{{ store.invoice.seller.name }}</span>
       <Badge tone="neutral">{{ store.invoice.profile }}</Badge>
       <span class="flex-1" />
-      <Badge v-if="errorCount > 0" tone="error">{{ errorCount }} Fehler</Badge>
+      <Badge v-if="errorCount > 0" tone="error" class="gap-1">
+        <AlertCircle :size="12" aria-hidden="true" />
+        {{ errorCount }} Fehler
+      </Badge>
       <span v-else class="text-xs text-muted">Keine Fehler</span>
-      <Button variant="ghost" @click="store.reset()">Neue Rechnung laden</Button>
+      <Button variant="ghost" @click="store.reset()">
+        <RotateCcw :size="14" aria-hidden="true" />
+        Neue Rechnung laden
+      </Button>
     </header>
 
     <div v-if="!store.invoice" class="flex flex-1 items-center justify-center p-8">

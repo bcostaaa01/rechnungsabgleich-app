@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from '@rechnungsabgleich/design-system'
+import { Upload } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 
 const emit = defineEmits<{ select: [file: File] }>()
@@ -35,6 +36,7 @@ async function loadSample() {
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
+    <Upload :size="32" class="text-muted" aria-hidden="true" />
     <p class="text-sm text-muted">PDF-Rechnung hierher ziehen oder</p>
     <Button variant="primary" @click="openFilePicker">Datei auswählen</Button>
     <input
