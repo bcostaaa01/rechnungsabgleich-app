@@ -15,6 +15,21 @@ import { useReviewStore } from '@/stores/review'
 // such control exists yet, so this stays a fixed constant for now.
 const DEFAULT_TOLERANCE = new Big('0.01')
 
+// SPEC.md §7: "Loading -- progress for parse and render separately." Each
+// id corresponds to one real await in loadFromFile below, in order -- this
+// is not a decorative progress bar, it's what's actually happening. Labels
+// live here rather than in the component because they describe stages of
+// this store's own loading process, not free-standing UI copy.
+export type LoadingStep = 'pdf' | 'attachment' | 'parse' | 'pdf-text' | 'checks'
+
+export const LOADING_STEPS: ReadonlyArray<{ id: LoadingStep; label: string }> = [
+  { id: 'pdf', label: 'PDF wird geladen' },
+  { id: 'attachment', label: 'ZUGFeRD-Anhang wird gesucht' },
+  { id: 'parse', label: 'Rechnung wird geparst' },
+  { id: 'pdf-text', label: 'PDF-Text wird gelesen' },
+  { id: 'checks', label: 'Prüfungen laufen' },
+]
+
 export const useInvoiceStore = defineStore('invoice', () => {
   const fileName = ref<string | null>(null)
   const xml = ref<string | null>(null)
@@ -31,6 +46,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
   const findings = shallowRef<Finding[]>([])
   const error = ref<string | null>(null)
   const loading = ref(false)
+  const loadingStep = ref<LoadingStep | null>(null)
 
   async function loadFromFile(file: File) {
     loading.value = true
@@ -47,15 +63,23 @@ export const useInvoiceStore = defineStore('invoice', () => {
     useReviewStore().reset()
 
     try {
+      loadingStep.value = 'pdf'
       const loadedDoc = await loadDocument(file)
+
+      loadingStep.value = 'attachment'
       const attachment = await findCiiXmlAttachment(loadedDoc)
       if (!attachment) {
         throw new Error('Kein ZUGFeRD-Anhang gefunden')
       }
       xml.value = attachment.xml
+
+      loadingStep.value = 'parse'
       const parsedInvoice = parseCiiXml(attachment.xml)
+
+      loadingStep.value = 'pdf-text'
       const pdfText = await extractDocumentText(loadedDoc)
 
+      loadingStep.value = 'checks'
       doc.value = loadedDoc
       invoice.value = parsedInvoice
       findings.value = runChecks(parsedInvoice, { tolerance: DEFAULT_TOLERANCE, pdfText })
@@ -63,6 +87,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
       error.value = caught instanceof Error ? caught.message : String(caught)
     } finally {
       loading.value = false
+      loadingStep.value = null
     }
   }
 
@@ -74,8 +99,9 @@ export const useInvoiceStore = defineStore('invoice', () => {
     findings.value = []
     error.value = null
     loading.value = false
+    loadingStep.value = null
     useReviewStore().reset()
   }
 
-  return { fileName, xml, invoice, doc, findings, error, loading, loadFromFile, reset }
+  return { fileName, xml, invoice, doc, findings, error, loading, loadingStep, loadFromFile, reset }
 })

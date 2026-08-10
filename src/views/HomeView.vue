@@ -9,7 +9,8 @@ import FindingList from '@/components/FindingList.vue'
 import ProfileBanner from '@/components/ProfileBanner.vue'
 import ExportMenu from '@/components/ExportMenu.vue'
 import ShortcutOverlay from '@/components/ShortcutOverlay.vue'
-import { Badge, Button, Spinner } from '@rechnungsabgleich/design-system'
+import LoadingSteps from '@/components/LoadingSteps.vue'
+import { Badge, Button } from '@rechnungsabgleich/design-system'
 import { AlertCircle, RotateCcw } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 
@@ -105,7 +106,7 @@ const {
     </header>
 
     <div v-if="!store.invoice" class="flex flex-1 items-center justify-center p-8">
-      <Spinner v-if="store.loading" label="Rechnung wird geladen …" />
+      <LoadingSteps v-if="store.loading" :current-step="store.loadingStep" />
       <div v-else class="w-full max-w-md">
         <DropZone @select="onFileSelect" />
         <p v-if="store.error" class="mt-4 text-center text-sm text-error">{{ store.error }}</p>
