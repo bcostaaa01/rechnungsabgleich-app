@@ -18,7 +18,7 @@ function onFileSelect(file: File) {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col">
+  <div class="flex h-full flex-col">
     <header v-if="store.invoice" class="flex items-center gap-3 border-b border-border px-4 py-2 text-sm">
       <span class="font-semibold">Rechnung {{ store.invoice.invoiceNumber }}</span>
       <span class="text-muted">·</span>
