@@ -9,6 +9,7 @@ import { loadDocument } from '@/pdf/loadDocument'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
 import { extractDocumentText } from '@/pdf/extractPageText'
+import { useReviewStore } from '@/stores/review'
 
 // SPEC.md §6: default ±0,01, user-adjustable in the UI eventually -- no
 // such control exists yet, so this stays a fixed constant for now.
@@ -39,6 +40,11 @@ export const useInvoiceStore = defineStore('invoice', () => {
     findings.value = []
     xml.value = null
     fileName.value = file.name
+    // A new invoice's line IDs can coincidentally collide with the
+    // previous one's (e.g. both start "1", "2", ...) -- reset review
+    // decisions unconditionally rather than risk them applying to the
+    // wrong lines.
+    useReviewStore().reset()
 
     try {
       const loadedDoc = await loadDocument(file)
@@ -68,6 +74,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     findings.value = []
     error.value = null
     loading.value = false
+    useReviewStore().reset()
   }
 
   return { fileName, xml, invoice, doc, findings, error, loading, loadFromFile, reset }
