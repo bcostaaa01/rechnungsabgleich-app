@@ -40,3 +40,6 @@ __screenshots__/
 
 # Local scratch fixtures (not the committed tests/fixtures/ set)
 /local/
+
+# Storybook build output
+storybook-static/
