@@ -1,21 +1,8 @@
-/* SPEC.md §7 design direction: a dense operational tool, not a landing
-   page. Near-neutral paper ground so the rendered PDF isn't fighting the
-   chrome; exactly two semantic accents (error, warning) and nothing else
-   coloured. Light-only -- "paper" is a light-mode aesthetic choice, and
-   SPEC.md doesn't ask for dark mode. */
-@theme {
-  --color-paper: #f7f5f0;
-  --color-ink: #211f1c;
-  --color-border: #ddd8d0;
-  --color-muted: #6b6558;
-  --color-error: #b91c1c;
-  --color-warning: #b45309;
-
-  --font-sans:
-    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-}
+/* Design tokens come from the shared design-system package -- see
+   DESIGN.md at the repo root and packages/design-system/src/tokens.css.
+   One source of truth, so this app and Storybook can never visually
+   drift apart. Light-only -- SPEC.md doesn't ask for dark mode. */
+@import '@rechnungsabgleich/design-system/tokens.css';
 
 @layer base {
   *,

@@ -1,1 +1,28 @@
-@import 'tailwindcss';
+/* Shared design tokens -- single source of truth for both this package's
+   Storybook and the main app (src/assets/base.css imports this file
+   rather than defining its own @theme). White/modern/rounded direction,
+   per DESIGN.md at the repo root: cooler neutrals than the original warm
+   "paper" palette. Still exactly two semantic accents (error, warning) --
+   nothing else in the UI gets color.
+
+   Just the @theme fragment, not `@import "tailwindcss"` -- each real
+   entry point (the main app's main.css, Storybook's preview.css) wires in
+   Tailwind itself once and layers this on top, so it's never imported
+   twice.
+
+   No custom --radius-* tokens: Tailwind's built-in scale already has
+   what's needed (rounded-lg = 0.5rem for buttons, rounded-full for
+   badges/pills), so there's nothing to override here. */
+@theme {
+  --color-paper: #ffffff;
+  --color-ink: #18181b;
+  --color-border: #e4e4e7;
+  --color-muted: #71717a;
+  --color-error: #b91c1c;
+  --color-warning: #b45309;
+
+  --font-sans:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
