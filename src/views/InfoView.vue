@@ -30,14 +30,14 @@ import { rules } from '@/core/checks/rules'
           <tr class="border-b border-border text-muted">
             <th class="py-1.5 pr-3 font-medium">Regel</th>
             <th class="py-1.5 pr-3 font-medium">Prüft</th>
-            <th class="py-1.5 font-medium">EN 16931</th>
+            <th class="py-1.5 font-medium whitespace-nowrap">EN 16931</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
           <tr v-for="rule in rules" :key="rule.id">
             <td class="num py-1.5 pr-3 align-top whitespace-nowrap">{{ rule.id }}</td>
             <td class="py-1.5 pr-3 align-top">{{ rule.descriptionDe }}</td>
-            <td class="num py-1.5 align-top text-muted">{{ rule.businessRule ?? '—' }}</td>
+            <td class="num py-1.5 align-top whitespace-nowrap text-muted">{{ rule.businessRule ?? '—' }}</td>
           </tr>
         </tbody>
       </table>

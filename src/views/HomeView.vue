@@ -46,18 +46,23 @@ const {
 
 <template>
   <div class="flex h-full flex-col">
-    <header v-if="store.invoice" class="flex items-center gap-3 border-b border-border px-4 py-2 text-sm">
-      <span class="font-semibold">Rechnung {{ store.invoice.invoiceNumber }}</span>
-      <span class="text-muted">·</span>
-      <span>{{ store.invoice.seller.name }}</span>
+    <header
+      v-if="store.invoice"
+      class="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border px-4 py-2 text-sm"
+    >
+      <span class="flex items-center gap-2 whitespace-nowrap">
+        <span class="font-semibold">Rechnung {{ store.invoice.invoiceNumber }}</span>
+        <span class="text-muted">·</span>
+        <span>{{ store.invoice.seller.name }}</span>
+      </span>
       <Badge tone="neutral">{{ store.invoice.profile }}</Badge>
       <span class="flex-1" />
-      <Badge v-if="errorCount > 0" tone="error" class="gap-1">
+      <Badge v-if="errorCount > 0" tone="error" class="shrink-0 gap-1 whitespace-nowrap">
         <AlertCircle :size="12" aria-hidden="true" />
         {{ errorCount }} Fehler
       </Badge>
-      <span v-else class="text-xs text-muted">Keine Fehler</span>
-      <Button variant="ghost" @click="store.reset()">
+      <span v-else class="shrink-0 text-xs whitespace-nowrap text-muted">Keine Fehler</span>
+      <Button variant="ghost" class="shrink-0 whitespace-nowrap" @click="store.reset()">
         <RotateCcw :size="14" aria-hidden="true" />
         Neue Rechnung laden
       </Button>
