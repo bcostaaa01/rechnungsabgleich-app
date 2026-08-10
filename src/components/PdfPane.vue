@@ -10,6 +10,7 @@ const props = defineProps<{ doc: PDFDocumentProxy | null }>()
 const currentPage = ref(1)
 const scale = ref(1.25)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
+const scrollContainerEl = ref<HTMLDivElement | null>(null)
 
 const MIN_SCALE = 0.5
 const MAX_SCALE = 3
@@ -30,6 +31,28 @@ async function render() {
   await renderPageToCanvas(page, canvas, scale.value)
 }
 
+// Re-renders for a new zoom level while keeping the same point on the page
+// centred in the viewport. Without this, every zoom step keeps the
+// scroll container's raw pixel offset, which now points somewhere
+// completely different once the canvas has been resized -- the classic
+// "zoom jumps back to the top-left" disorientation.
+async function renderPreservingViewCenter() {
+  const canvas = canvasEl.value
+  const container = scrollContainerEl.value
+  if (!canvas || !container || canvas.width === 0 || canvas.height === 0) {
+    await render()
+    return
+  }
+
+  const fractionX = (container.scrollLeft + container.clientWidth / 2) / canvas.width
+  const fractionY = (container.scrollTop + container.clientHeight / 2) / canvas.height
+
+  await render()
+
+  container.scrollLeft = fractionX * canvas.width - container.clientWidth / 2
+  container.scrollTop = fractionY * canvas.height - container.clientHeight / 2
+}
+
 onMounted(() => {
   void render()
 })
@@ -42,8 +65,12 @@ watch(
   },
 )
 
-watch([currentPage, scale], () => {
+watch(currentPage, () => {
   void render()
+})
+
+watch(scale, () => {
+  void renderPreservingViewCenter()
 })
 
 function previousPage() {
@@ -69,7 +96,7 @@ function zoomIn() {
       Kein PDF geladen.
     </div>
     <template v-else>
-      <div class="min-h-0 flex-1 overflow-auto bg-border/20 p-4">
+      <div ref="scrollContainerEl" class="min-h-0 flex-1 overflow-auto bg-border/20 p-4">
         <div class="flex min-h-full items-center justify-center">
           <canvas ref="canvasEl" class="shadow-sm" />
         </div>
