@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from '@rechnungsabgleich/design-system'
+import { useFileDrop } from '@/composables/useFileDrop'
 
 const emit = defineEmits<{ select: [file: File] }>()
 
-const isDragging = ref(false)
 const fileInput = ref<HTMLInputElement | null>(null)
-
-function onDrop(event: DragEvent) {
-  isDragging.value = false
-  const file = event.dataTransfer?.files[0]
-  if (file) emit('select', file)
-}
+const { isDragging, onDragEnter, onDragLeave, onDrop } = useFileDrop((file) => emit('select', file))
 
 function onFileInputChange(event: Event) {
   const input = event.target as HTMLInputElement
@@ -35,8 +30,9 @@ async function loadSample() {
   <div
     class="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 text-center transition-colors"
     :class="isDragging ? 'border-ink bg-border/20' : 'border-border'"
-    @dragover.prevent="isDragging = true"
-    @dragleave.prevent="isDragging = false"
+    @dragenter.prevent="onDragEnter"
+    @dragover.prevent
+    @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
     <p class="text-sm text-muted">PDF-Rechnung hierher ziehen oder</p>

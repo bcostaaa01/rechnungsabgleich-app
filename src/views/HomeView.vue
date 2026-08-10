@@ -7,6 +7,7 @@ import PositionTable from '@/components/PositionTable.vue'
 import FindingList from '@/components/FindingList.vue'
 import ProfileBanner from '@/components/ProfileBanner.vue'
 import { Badge, Button, Spinner } from '@rechnungsabgleich/design-system'
+import { useFileDrop } from '@/composables/useFileDrop'
 
 const store = useInvoiceStore()
 const activeTab = ref<'positionen' | 'pruefung'>('positionen')
@@ -16,6 +17,13 @@ const errorCount = computed(() => store.findings.filter((f) => f.severity === 'e
 function onFileSelect(file: File) {
   void store.loadFromFile(file)
 }
+
+const {
+  isDragging: isDraggingReplacement,
+  onDragEnter: onReplaceDragEnter,
+  onDragLeave: onReplaceDragLeave,
+  onDrop: onReplaceDrop,
+} = useFileDrop((file) => store.loadFromFile(file))
 </script>
 
 <template>
@@ -39,7 +47,20 @@ function onFileSelect(file: File) {
       </div>
     </div>
 
-    <div v-else class="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
+    <div
+      v-else
+      class="relative grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2"
+      @dragenter.prevent="onReplaceDragEnter"
+      @dragover.prevent
+      @dragleave.prevent="onReplaceDragLeave"
+      @drop.prevent="onReplaceDrop"
+    >
+      <div
+        v-if="isDraggingReplacement"
+        class="absolute inset-0 z-10 flex items-center justify-center bg-paper/90 text-sm font-medium"
+      >
+        Datei hier ablegen, um sie zu laden
+      </div>
       <PdfPane :doc="store.doc" />
 
       <div class="flex flex-col overflow-hidden border-border lg:border-l">
