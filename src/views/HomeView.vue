@@ -123,7 +123,7 @@ const {
             role="tabpanel"
             aria-labelledby="tab-positionen"
           >
-            <PositionTable :lines="store.invoice.lines" />
+            <PositionTable :lines="store.invoice.lines" :findings="store.findings" />
           </div>
           <div v-else id="panel-pruefung" role="tabpanel" aria-labelledby="tab-pruefung">
             <FindingList :findings="store.findings" />
