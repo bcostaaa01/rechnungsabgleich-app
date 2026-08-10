@@ -6,7 +6,7 @@ import PdfPane from '@/components/PdfPane.vue'
 import PositionTable from '@/components/PositionTable.vue'
 import FindingList from '@/components/FindingList.vue'
 import ProfileBanner from '@/components/ProfileBanner.vue'
-import { Badge, Button } from '@rechnungsabgleich/design-system'
+import { Badge, Button, Spinner } from '@rechnungsabgleich/design-system'
 
 const store = useInvoiceStore()
 const activeTab = ref<'positionen' | 'pruefung'>('positionen')
@@ -32,7 +32,7 @@ function onFileSelect(file: File) {
     </header>
 
     <div v-if="!store.invoice" class="flex flex-1 items-center justify-center p-8">
-      <p v-if="store.loading" class="text-sm text-muted">Lade …</p>
+      <Spinner v-if="store.loading" label="Rechnung wird geladen …" />
       <div v-else class="w-full max-w-md">
         <DropZone @select="onFileSelect" />
         <p v-if="store.error" class="mt-4 text-center text-sm text-error">{{ store.error }}</p>
