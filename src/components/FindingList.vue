@@ -1,18 +1,12 @@
 <script setup lang="ts">
 import type { Finding } from '@/core/checks/types'
 import { rules } from '@/core/checks/rules'
+import { Badge } from '@rechnungsabgleich/design-system'
 
 defineProps<{ findings: Finding[] }>()
 
-function severityClass(severity: Finding['severity']): string {
-  switch (severity) {
-    case 'error':
-      return 'bg-error/10 text-error'
-    case 'warning':
-      return 'bg-warning/10 text-warning'
-    default:
-      return 'bg-border/40 text-muted'
-  }
+function severityTone(severity: Finding['severity']): 'neutral' | 'error' | 'warning' {
+  return severity === 'error' || severity === 'warning' ? severity : 'neutral'
 }
 
 function ruleInfo(ruleId: string) {
@@ -28,12 +22,7 @@ function ruleInfo(ruleId: string) {
       :key="`${finding.ruleId}-${index}`"
       class="flex items-start gap-3 px-4 py-3"
     >
-      <span
-        class="num shrink-0 rounded px-1.5 py-0.5 text-xs font-semibold"
-        :class="severityClass(finding.severity)"
-      >
-        {{ finding.ruleId }}
-      </span>
+      <Badge :tone="severityTone(finding.severity)" class="shrink-0">{{ finding.ruleId }}</Badge>
       <div>
         <p class="text-sm">{{ finding.messageDe }}</p>
         <p class="mt-0.5 text-xs text-muted">

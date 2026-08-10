@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Button } from '@rechnungsabgleich/design-system'
 
 const emit = defineEmits<{ select: [file: File] }>()
 
 const isDragging = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
 
 function onDrop(event: DragEvent) {
   isDragging.value = false
@@ -18,6 +20,10 @@ function onFileInputChange(event: Event) {
   input.value = ''
 }
 
+function openFilePicker() {
+  fileInput.value?.click()
+}
+
 async function loadSample() {
   const response = await fetch('/beispielrechnung.pdf')
   const blob = await response.blob()
@@ -27,25 +33,21 @@ async function loadSample() {
 
 <template>
   <div
-    class="flex flex-col items-center justify-center gap-4 rounded border-2 border-dashed p-12 text-center transition-colors"
+    class="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 text-center transition-colors"
     :class="isDragging ? 'border-ink bg-border/20' : 'border-border'"
     @dragover.prevent="isDragging = true"
     @dragleave.prevent="isDragging = false"
     @drop.prevent="onDrop"
   >
     <p class="text-sm text-muted">PDF-Rechnung hierher ziehen oder</p>
-    <label
-      class="cursor-pointer rounded border border-ink px-4 py-2 text-sm font-medium hover:bg-ink hover:text-paper focus-within:ring-2 focus-within:ring-ink focus-within:ring-offset-2"
-    >
-      Datei auswählen
-      <input type="file" accept="application/pdf" class="sr-only" @change="onFileInputChange" />
-    </label>
-    <button
-      type="button"
-      class="text-sm text-muted underline underline-offset-2"
-      @click="loadSample"
-    >
-      Beispielrechnung laden
-    </button>
+    <Button variant="primary" @click="openFilePicker">Datei auswählen</Button>
+    <input
+      ref="fileInput"
+      type="file"
+      accept="application/pdf"
+      class="sr-only"
+      @change="onFileInputChange"
+    />
+    <Button variant="ghost" @click="loadSample">Beispielrechnung laden</Button>
   </div>
 </template>

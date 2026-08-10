@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { renderPageToCanvas } from '@/pdf/renderPage'
+import { Button } from '@rechnungsabgleich/design-system'
 
 const props = defineProps<{ doc: PDFDocumentProxy | null }>()
 
@@ -71,26 +72,12 @@ function zoomIn() {
         <canvas ref="canvasEl" class="shadow-sm" />
       </div>
       <div class="flex items-center justify-center gap-4 border-t border-border px-3 py-2 text-sm">
-        <button
-          type="button"
-          class="rounded px-2 py-1 disabled:opacity-40"
-          :disabled="currentPage <= 1"
-          @click="previousPage"
-        >
-          ◀
-        </button>
+        <Button variant="ghost" :disabled="currentPage <= 1" @click="previousPage">◀</Button>
         <span class="num">Seite {{ currentPage }} / {{ doc.numPages }}</span>
-        <button
-          type="button"
-          class="rounded px-2 py-1 disabled:opacity-40"
-          :disabled="currentPage >= doc.numPages"
-          @click="nextPage"
-        >
-          ▶
-        </button>
+        <Button variant="ghost" :disabled="currentPage >= doc.numPages" @click="nextPage">▶</Button>
         <span class="mx-2 h-4 border-l border-border" />
-        <button type="button" class="rounded px-2 py-1" @click="zoomOut">−</button>
-        <button type="button" class="rounded px-2 py-1" @click="zoomIn">+</button>
+        <Button variant="ghost" @click="zoomOut">−</Button>
+        <Button variant="ghost" @click="zoomIn">+</Button>
       </div>
     </template>
   </div>

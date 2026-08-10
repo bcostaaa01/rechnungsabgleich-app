@@ -6,6 +6,7 @@ import PdfPane from '@/components/PdfPane.vue'
 import PositionTable from '@/components/PositionTable.vue'
 import FindingList from '@/components/FindingList.vue'
 import ProfileBanner from '@/components/ProfileBanner.vue'
+import { Badge } from '@rechnungsabgleich/design-system'
 
 const store = useInvoiceStore()
 const activeTab = ref<'positionen' | 'pruefung'>('positionen')
@@ -23,16 +24,9 @@ function onFileSelect(file: File) {
       <span class="font-semibold">Rechnung {{ store.invoice.invoiceNumber }}</span>
       <span class="text-muted">·</span>
       <span>{{ store.invoice.seller.name }}</span>
-      <span class="num rounded border border-border px-1.5 py-0.5 text-xs text-muted">
-        {{ store.invoice.profile }}
-      </span>
+      <Badge tone="neutral">{{ store.invoice.profile }}</Badge>
       <span class="flex-1" />
-      <span
-        v-if="errorCount > 0"
-        class="num rounded bg-error/10 px-2 py-0.5 text-xs font-semibold text-error"
-      >
-        {{ errorCount }} Fehler
-      </span>
+      <Badge v-if="errorCount > 0" tone="error">{{ errorCount }} Fehler</Badge>
       <span v-else class="text-xs text-muted">Keine Fehler</span>
     </header>
 

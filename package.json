@@ -19,6 +19,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@rechnungsabgleich/design-system": "*",
     "big.js": "^7.0.1",
     "fast-xml-parser": "^5.10.1",
     "pdfjs-dist": "6.2.108",
