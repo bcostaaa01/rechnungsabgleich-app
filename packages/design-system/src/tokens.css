@@ -26,3 +26,20 @@
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
 }
+
+/* Dark mode: overriding the same custom properties under .dark re-themes
+   every existing component automatically, since every colour utility
+   used across the app (bg-paper, text-ink, ...) already resolves through
+   var(--color-paper) etc. at runtime -- no dark: variants needed anywhere
+   else. .dark is applied to <html> by src/composables/useTheme.ts (and,
+   before that composable runs, by the FOUC-prevention inline script in
+   index.html). Error/warning are lightened versions of the light-mode
+   colours -- the light-mode shades read as muddy on a dark background. */
+.dark {
+  --color-paper: #18181b;
+  --color-ink: #f4f4f5;
+  --color-border: #3f3f46;
+  --color-muted: #a1a1aa;
+  --color-error: #f87171;
+  --color-warning: #fbbf24;
+}
