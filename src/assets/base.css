@@ -1,7 +1,9 @@
 /* Design tokens come from the shared design-system package -- see
    DESIGN.md at the repo root and packages/design-system/src/tokens.css.
    One source of truth, so this app and Storybook can never visually
-   drift apart. Light-only -- SPEC.md doesn't ask for dark mode. */
+   drift apart. Includes a .dark override block -- applied to <html> by
+   src/composables/useTheme.ts (and, before that composable runs, by the
+   FOUC-prevention inline script in index.html). */
 @import '@rechnungsabgleich/design-system/tokens.css';
 
 @layer base {

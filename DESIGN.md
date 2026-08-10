@@ -29,14 +29,26 @@ Defined once in `packages/design-system/src/tokens.css`, consumed by both
 the running app (`src/assets/base.css` imports it) and Storybook
 (`.storybook/preview.css`) — one source of truth, so they can't drift.
 
-| Token | Value | Use |
-|---|---|---|
-| `--color-paper` | `#ffffff` | App background |
-| `--color-ink` | `#18181b` | Primary text, primary-button fill |
-| `--color-border` | `#e4e4e7` | Dividers, outlines, neutral badge border |
-| `--color-muted` | `#71717a` | Secondary text |
-| `--color-error` | `#b91c1c` | Error findings, error badges/counts |
-| `--color-warning` | `#b45309` | Warning findings |
+| Token | Light | Dark | Use |
+|---|---|---|---|
+| `--color-paper` | `#ffffff` | `#18181b` | App background |
+| `--color-ink` | `#18181b` | `#f4f4f5` | Primary text, primary-button fill |
+| `--color-border` | `#e4e4e7` | `#3f3f46` | Dividers, outlines, neutral badge border |
+| `--color-muted` | `#71717a` | `#a1a1aa` | Secondary text |
+| `--color-error` | `#b91c1c` | `#f87171` | Error findings, error badges/counts |
+| `--color-warning` | `#b45309` | `#fbbf24` | Warning findings |
+
+### Dark mode
+
+A `.dark` class on `<html>` overrides the same custom properties (see the
+table above) — every existing component re-themes automatically since
+colour is only ever consumed through `var(--color-*)`, never hardcoded.
+State lives in `src/composables/useTheme.ts`: explicit user choice
+(`localStorage`, key `rechnungsabgleich:theme`) wins over OS preference
+(`prefers-color-scheme`, followed live until the user makes an explicit
+choice). A tiny inline script in `index.html`'s `<head>` applies the
+resolved class before any CSS/JS loads, to avoid a flash of the wrong
+theme. Toggle: `ThemeToggle.vue`, in the persistent nav bar.
 
 ## Typography
 
@@ -81,6 +93,22 @@ attributes pass through automatically (not declared as explicit props).
   in secondary contexts.
 - **error** / **warning** — tinted background matching the severity
   colour. Finding severity tags, the header error count.
+
+## Icons
+
+[`@lucide/vue`](https://lucide.dev) — ISC licence, tree-shakeable
+per-icon imports (`import { Sun } from '@lucide/vue'`). Chosen over
+Heroicons/Tabler for fitting "utility grotesk, functional not
+expressive" better than Heroicons' rounder style or Tabler's much larger
+but less curated set.
+
+Used only where an icon adds real functional clarity, not decoratively:
+theme toggle (`Sun`/`Moon`), PDF page nav/zoom (`ChevronLeft`/
+`ChevronRight`/`ZoomIn`/`ZoomOut` — replacing plain ◀▶−+ characters with
+standard recognisable icons), the drop zone (`Upload`), "Neue Rechnung
+laden" (`RotateCcw`), finding severity (`AlertCircle`/`AlertTriangle`),
+and the Info nav link (`Info`). Tabs and most badges stay text-only —
+not every element needs one.
 
 ## What's deliberately not themed
 
