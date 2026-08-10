@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useInvoiceStore } from '@/stores/invoice'
 import DropZone from '@/components/DropZone.vue'
 import PdfPane from '@/components/PdfPane.vue'
@@ -11,8 +11,25 @@ import { useFileDrop } from '@/composables/useFileDrop'
 
 const store = useInvoiceStore()
 const activeTab = ref<'positionen' | 'pruefung'>('positionen')
+const positionenTabRef = ref<HTMLButtonElement | null>(null)
+const pruefungTabRef = ref<HTMLButtonElement | null>(null)
 
 const errorCount = computed(() => store.findings.filter((f) => f.severity === 'error').length)
+
+async function selectTab(tab: 'positionen' | 'pruefung') {
+  activeTab.value = tab
+  await nextTick()
+  ;(tab === 'positionen' ? positionenTabRef : pruefungTabRef).value?.focus()
+}
+
+// WAI-ARIA APG tabs pattern, automatic activation: arrow keys both switch
+// the active tab and move focus, rather than requiring a separate
+// activation step.
+function onTabKeydown(event: KeyboardEvent) {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+  event.preventDefault()
+  void selectTab(activeTab.value === 'positionen' ? 'pruefung' : 'positionen')
+}
 
 function onFileSelect(file: File) {
   void store.loadFromFile(file)
@@ -66,28 +83,51 @@ const {
       <div class="flex flex-col overflow-hidden border-border lg:border-l">
         <ProfileBanner :profile="store.invoice.profile" :capabilities="store.invoice.capabilities" />
 
-        <div class="flex border-b border-border text-sm">
+        <div class="flex border-b border-border text-sm" role="tablist" aria-label="Ansicht">
           <button
+            id="tab-positionen"
+            ref="positionenTabRef"
             type="button"
+            role="tab"
+            :aria-selected="activeTab === 'positionen'"
+            aria-controls="panel-positionen"
+            :tabindex="activeTab === 'positionen' ? 0 : -1"
             class="px-4 py-2"
             :class="activeTab === 'positionen' ? 'border-b-2 border-ink font-semibold' : 'text-muted'"
-            @click="activeTab = 'positionen'"
+            @click="selectTab('positionen')"
+            @keydown="onTabKeydown"
           >
             Positionen
           </button>
           <button
+            id="tab-pruefung"
+            ref="pruefungTabRef"
             type="button"
+            role="tab"
+            :aria-selected="activeTab === 'pruefung'"
+            aria-controls="panel-pruefung"
+            :tabindex="activeTab === 'pruefung' ? 0 : -1"
             class="px-4 py-2"
             :class="activeTab === 'pruefung' ? 'border-b-2 border-ink font-semibold' : 'text-muted'"
-            @click="activeTab = 'pruefung'"
+            @click="selectTab('pruefung')"
+            @keydown="onTabKeydown"
           >
             Prüfung
           </button>
         </div>
 
         <div class="flex-1 overflow-auto">
-          <PositionTable v-if="activeTab === 'positionen'" :lines="store.invoice.lines" />
-          <FindingList v-else :findings="store.findings" />
+          <div
+            v-if="activeTab === 'positionen'"
+            id="panel-positionen"
+            role="tabpanel"
+            aria-labelledby="tab-positionen"
+          >
+            <PositionTable :lines="store.invoice.lines" />
+          </div>
+          <div v-else id="panel-pruefung" role="tabpanel" aria-labelledby="tab-pruefung">
+            <FindingList :findings="store.findings" />
+          </div>
         </div>
       </div>
     </div>
