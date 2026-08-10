@@ -60,5 +60,15 @@ export const useInvoiceStore = defineStore('invoice', () => {
     }
   }
 
-  return { fileName, xml, invoice, doc, findings, error, loading, loadFromFile }
+  function reset() {
+    fileName.value = null
+    xml.value = null
+    invoice.value = null
+    doc.value = null
+    findings.value = []
+    error.value = null
+    loading.value = false
+  }
+
+  return { fileName, xml, invoice, doc, findings, error, loading, loadFromFile, reset }
 })
