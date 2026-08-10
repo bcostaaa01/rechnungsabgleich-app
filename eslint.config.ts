@@ -22,6 +22,18 @@ export default defineConfigWithVueTs(
   vueTsConfigs.recommended,
 
   {
+    name: 'design-system/single-word-component-names',
+    // Design-system packages conventionally export single-word component
+    // names (Button, Badge) -- consumers always import them namespaced
+    // (`import { Button } from '@rechnungsabgleich/design-system'`), so
+    // there's no ambiguity the multi-word rule is meant to prevent.
+    files: ['packages/design-system/src/**/*.vue'],
+    rules: {
+      'vue/multi-word-component-names': 'off',
+    },
+  },
+
+  {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },
