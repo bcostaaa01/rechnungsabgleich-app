@@ -2,8 +2,6 @@
 
 A browser-only reviewer for German/European hybrid e-invoices (ZUGFeRD / Factur-X). Drop in an invoice PDF, and the app extracts the embedded XML, renders both side by side, and reports exactly where the human-readable document and the machine-readable data disagree.
 
-Built as a portfolio piece targeting reebuild GmbH (Wien) — their product turns construction documents into structured datasets and reconciles PDF against XML for e-invoices. This is a small, sharp version of that.
-
 ---
 
 ## 1. Scope
