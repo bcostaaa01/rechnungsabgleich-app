@@ -61,6 +61,7 @@ describe('parseCiiXml', () => {
     expect(invoice.totals.lineTotal.eq(new Big('2385.00'))).toBe(true)
     expect(invoice.totals.taxBasisTotal.eq(new Big('2385.00'))).toBe(true)
     expect(invoice.totals.taxTotal.eq(new Big('361.00'))).toBe(true)
+    expect(invoice.totals.taxTotalCurrencyId).toBe('EUR')
     expect(invoice.totals.grandTotal.eq(new Big('2746.00'))).toBe(true)
     expect(invoice.totals.duePayable.eq(new Big('2746.00'))).toBe(true)
     expect(invoice.totals.allowanceTotal).toBeNull()

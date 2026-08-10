@@ -48,6 +48,10 @@ export interface InvoiceTotals {
   chargeTotal: Money | null
   taxBasisTotal: Money
   taxTotal: Money
+  // The @currencyID attribute on TaxTotalAmount (SPEC.md §3) -- optional in
+  // CII generally, only mandatory for cross-currency VAT scenarios. Read
+  // for R-CUR-01 to compare against the header InvoiceCurrencyCode.
+  taxTotalCurrencyId?: string
   grandTotal: Money
   totalPrepaid: Money | null
   duePayable: Money

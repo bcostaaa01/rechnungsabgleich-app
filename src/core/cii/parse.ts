@@ -177,6 +177,7 @@ export function parseCiiXml(xml: string): Invoice {
       chargeTotal: optionalAmount(child(summation, 'ram:ChargeTotalAmount')),
       taxBasisTotal: requiredAmount(child(summation, 'ram:TaxBasisTotalAmount'), 'ram:TaxBasisTotalAmount'),
       taxTotal: requiredAmount(child(summation, 'ram:TaxTotalAmount'), 'ram:TaxTotalAmount'),
+      taxTotalCurrencyId: attr(child(summation, 'ram:TaxTotalAmount'), 'currencyID'),
       grandTotal: requiredAmount(child(summation, 'ram:GrandTotalAmount'), 'ram:GrandTotalAmount'),
       totalPrepaid: optionalAmount(child(summation, 'ram:TotalPrepaidAmount')),
       duePayable: requiredAmount(child(summation, 'ram:DuePayableAmount'), 'ram:DuePayableAmount'),

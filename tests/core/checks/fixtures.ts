@@ -58,6 +58,7 @@ export function makeInvoice(): Invoice {
       chargeTotal: null,
       taxBasisTotal: new Big('2385.00'),
       taxTotal: new Big('361.00'),
+      taxTotalCurrencyId: 'EUR',
       grandTotal: new Big('2746.00'),
       totalPrepaid: null,
       duePayable: new Big('2746.00'),
