@@ -70,3 +70,28 @@ findings fire and no others -- proof the fixture is broken in precisely
 the intended way, not just eyeballed. Also worth dragging into the
 running app by hand (`npm run dev`) to see the findings list render
 something real.
+
+## `en16931-two-page.{pdf,xml}`
+
+A minimal, arithmetically clean two-page invoice (single line item,
+`Testfirma Bau GmbH` → `Musterkunde AG`, invoice number `2024-0900`).
+Built the same way as the other two (a throwaway `pdf-lib` script, not
+committed), but exists for a different reason: every other fixture is
+single-page, so the click-to-highlight gutter's "jump to a different
+page" path (`PdfPane.vue`'s `activeHighlight` watcher, and the
+`renderSettled`/`nextTick` synchronization it depends on) had no real
+document to manually verify against.
+
+Page 1 prints only the header, parties, and per-unit pricing
+(`500,00 EUR`); the line total (`1.000,00 EUR`, printed twice --
+Positionsbetrag and Nettobetrag) and grand total (`1.200,00 EUR`,
+printed twice -- Bruttobetrag and Fälliger Betrag) live on page 2 only.
+Loading this file always lands on page 1, so clicking a position row or
+finding whose value is only findable on page 2 forces a real page jump
+-- and the double-printed totals double as a real-content example of
+the "more than one match on a page" multi-rect case.
+
+Not used by an automated test (no checks-pipeline assertions to make --
+the invoice is deliberately clean, and it isn't wired to the
+"Beispielrechnung laden" button); load it by hand via drag-and-drop
+(`npm run dev`) during manual verification of the gutter feature.
