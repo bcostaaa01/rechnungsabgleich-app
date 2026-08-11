@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import type { PDFDocumentProxy, PageViewport, RenderTask } from '@/pdf/pdfjs'
 import { RenderingCancelledException } from '@/pdf/pdfjs'
 import { renderPageToCanvas } from '@/pdf/renderPage'
+import { locateText, type Rect } from '@/pdf/locate'
+import { useInvoiceStore } from '@/stores/invoice'
+import { useReviewStore } from '@/stores/review'
 import { Button } from '@rechnungsabgleich/design-system'
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from '@lucide/vue'
 
 const props = defineProps<{ doc: PDFDocumentProxy | null }>()
+
+const invoiceStore = useInvoiceStore()
+const review = useReviewStore()
 
 const currentPage = ref(1)
 const scale = ref(1.25)
@@ -29,7 +35,19 @@ let renderToken = 0
 // already-settled task is a safe no-op.
 let activeRenderTask: RenderTask | null = null
 
-async function render(): Promise<void> {
+// Reassigned synchronously as the first action of every render() call
+// (before performRender()'s first await), so the activeHighlight watcher
+// below can synchronize on "the most recently requested render has
+// finished" without racing it -- see that watcher's own comment.
+let renderSettled: Promise<void> = Promise.resolve()
+
+function render(): Promise<void> {
+  const promise = performRender()
+  renderSettled = promise
+  return promise
+}
+
+async function performRender(): Promise<void> {
   const doc = props.doc
   const canvas = canvasEl.value
   if (!doc || !canvas) return
@@ -97,6 +115,81 @@ watch(scale, () => {
   void renderPreservingViewCenter()
 })
 
+// PDF-space rect -> viewport-space (CSS pixel) rect. Both corners are
+// converted separately, not just the origin with width/height scaled
+// afterward: convertToViewportPoint already folds in page rotation, and on
+// a 90°/270°-rotated page the rotation matrix swaps the x/y axes, so a
+// PDF-space "width" can become a viewport-space *vertical* extent.
+function rectToViewport(rect: Rect, viewport: PageViewport): { left: number; top: number; width: number; height: number } {
+  const [x1, y1] = viewport.convertToViewportPoint(rect.x, rect.y) as [number, number]
+  const [x2, y2] = viewport.convertToViewportPoint(rect.x + rect.width, rect.y + rect.height) as [number, number]
+  return {
+    left: Math.min(x1, x2),
+    top: Math.min(y1, y2),
+    width: Math.abs(x2 - x1),
+    height: Math.abs(y2 - y1),
+  }
+}
+
+// Gated on the match's page equalling currentPage, not just "a match
+// exists": while a highlight-triggered page jump is still in flight, this
+// renders nothing rather than showing boxes over the wrong page's pixels
+// -- it self-corrects reactively the moment currentPage catches up.
+const overlayRects = computed(() => {
+  const viewport = lastViewport.value
+  const highlight = review.activeHighlight
+  if (!viewport || !highlight) return []
+
+  const match = locateText(invoiceStore.textLayers, highlight.searchText)
+  if (!match || match.page !== currentPage.value) return []
+
+  return match.rects.map((rect) => rectToViewport(rect, viewport))
+})
+
+const highlightToneClass = computed(() => {
+  const tone = review.activeHighlight?.tone
+  if (tone === 'error') return 'border-error bg-error/10'
+  if (tone === 'warning') return 'border-warning bg-warning/10'
+  return 'border-ink'
+})
+
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function scrollToFirstOverlayBox() {
+  const box = scrollContainerEl.value?.querySelector('[data-overlay-index="0"]')
+  box?.scrollIntoView({ block: 'center', inline: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' })
+}
+
+// The one place that owns "the user just asked to look at X". A naive
+// `currentPage.value = match.page; await render()` here would race the
+// currentPage watcher above -- both would call render(), both increment
+// the shared renderToken, and whichever call's getPage() resolves second
+// wins, leaving the other's `await render()` resolved without ever having
+// rendered anything (lastViewport stays stale). So this never calls
+// render() directly: it lets the currentPage watcher be the sole trigger
+// and synchronizes via nextTick(), which resolves only after Vue's
+// pre-flush watcher queue (where that watcher runs) has been processed --
+// by then render()'s first synchronous action has already reassigned
+// renderSettled to the real render's promise.
+watch(
+  () => review.activeHighlight,
+  async (highlight) => {
+    if (!highlight) return
+    const match = locateText(invoiceStore.textLayers, highlight.searchText)
+    if (!match) return
+
+    if (match.page !== currentPage.value) {
+      currentPage.value = match.page
+      await nextTick()
+    }
+    await renderSettled
+    await nextTick()
+    scrollToFirstOverlayBox()
+  },
+)
+
 function previousPage() {
   if (currentPage.value > 1) currentPage.value -= 1
 }
@@ -121,7 +214,20 @@ function zoomIn() {
     </div>
     <template v-else>
       <div ref="scrollContainerEl" class="flex min-h-0 flex-1 overflow-auto bg-border/20 p-4">
-        <canvas ref="canvasEl" class="m-auto shadow-sm" />
+        <div
+          class="relative m-auto"
+          :style="lastViewport ? { width: `${lastViewport.width}px`, height: `${lastViewport.height}px` } : undefined"
+        >
+          <canvas ref="canvasEl" class="block shadow-sm" />
+          <div
+            v-for="(rect, index) in overlayRects"
+            :key="index"
+            :data-overlay-index="index"
+            class="pointer-events-none absolute rounded-sm border-2"
+            :class="highlightToneClass"
+            :style="{ left: `${rect.left}px`, top: `${rect.top}px`, width: `${rect.width}px`, height: `${rect.height}px` }"
+          />
+        </div>
       </div>
       <div class="flex shrink-0 items-center justify-center gap-4 border-t border-border px-3 py-2 text-sm">
         <Button
