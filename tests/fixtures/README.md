@@ -25,8 +25,8 @@ routinely have both). Every check in the suite passes on it.
 | Bruttobetrag | 2.746,00 € |
 
 Used by `parse.test.ts`, `extractAttachments.test.ts`,
-`extractPageText.test.ts`, and the `public/beispielrechnung.pdf` copy
-behind the "Beispielrechnung laden" button.
+`textLayer.test.ts`, and the `public/beispielrechnung.pdf` copy behind
+the "Beispielrechnung laden" button.
 
 ## `en16931-broken.{pdf,xml}`
 

@@ -4,7 +4,7 @@ import Big from 'big.js'
 import { describe, expect, it, vi } from 'vitest'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
-import { extractDocumentText } from '@/pdf/extractPageText'
+import { getDocumentTextLayers, layersToPlainText } from '@/pdf/textLayer'
 import { parseCiiXml } from '@/core/cii/parse'
 import { runChecks } from '@/core/checks/runner'
 
@@ -34,7 +34,7 @@ describe('en16931-broken.pdf end to end', () => {
     expect(attachment).not.toBeNull()
 
     const invoice = parseCiiXml(attachment!.xml)
-    const pdfText = await extractDocumentText(doc)
+    const pdfText = layersToPlainText(await getDocumentTextLayers(doc))
     const findings = runChecks(invoice, { tolerance: new Big('0.01'), pdfText })
 
     const findingsByRule = new Map(findings.map((f) => [f.ruleId, f]))

@@ -8,7 +8,7 @@ import { runChecks } from '@/core/checks/runner'
 import { loadDocument } from '@/pdf/loadDocument'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
-import { extractDocumentText } from '@/pdf/extractPageText'
+import { getDocumentTextLayers, layersToPlainText, type PositionedTextItem } from '@/pdf/textLayer'
 import { useReviewStore } from '@/stores/review'
 
 // SPEC.md §6: default ±0,01, user-adjustable in the UI eventually -- no
@@ -44,6 +44,10 @@ export const useInvoiceStore = defineStore('invoice', () => {
   const invoice = shallowRef<Invoice | null>(null)
   const doc = shallowRef<PDFDocumentProxy | null>(null)
   const findings = shallowRef<Finding[]>([])
+  // Positioned text per page, for the click-to-highlight gutter's
+  // pdf/locate.ts to search. Parallel to doc, not derived from it -- both
+  // come from the same loadDocument() result but are set together below.
+  const textLayers = shallowRef<PositionedTextItem[][]>([])
   const error = ref<string | null>(null)
   const loading = ref(false)
   const loadingStep = ref<LoadingStep | null>(null)
@@ -54,6 +58,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     invoice.value = null
     doc.value = null
     findings.value = []
+    textLayers.value = []
     xml.value = null
     fileName.value = file.name
     // A new invoice's line IDs can coincidentally collide with the
@@ -77,10 +82,12 @@ export const useInvoiceStore = defineStore('invoice', () => {
       const parsedInvoice = parseCiiXml(attachment.xml)
 
       loadingStep.value = 'pdf-text'
-      const pdfText = await extractDocumentText(loadedDoc)
+      const layers = await getDocumentTextLayers(loadedDoc)
+      const pdfText = layersToPlainText(layers)
 
       loadingStep.value = 'checks'
       doc.value = loadedDoc
+      textLayers.value = layers
       invoice.value = parsedInvoice
       findings.value = runChecks(parsedInvoice, { tolerance: DEFAULT_TOLERANCE, pdfText })
     } catch (caught) {
@@ -97,11 +104,24 @@ export const useInvoiceStore = defineStore('invoice', () => {
     invoice.value = null
     doc.value = null
     findings.value = []
+    textLayers.value = []
     error.value = null
     loading.value = false
     loadingStep.value = null
     useReviewStore().reset()
   }
 
-  return { fileName, xml, invoice, doc, findings, error, loading, loadingStep, loadFromFile, reset }
+  return {
+    fileName,
+    xml,
+    invoice,
+    doc,
+    findings,
+    textLayers,
+    error,
+    loading,
+    loadingStep,
+    loadFromFile,
+    reset,
+  }
 })
