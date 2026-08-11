@@ -9,4 +9,5 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
 export { pdfjsLib }
 // Re-exported so other pdf/ modules never need to import pdfjs-dist
 // directly, even just for types -- this stays the single import point.
-export type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist'
+export type { PDFDocumentProxy, PDFPageProxy, PageViewport, RenderTask } from 'pdfjs-dist'
+export { RenderingCancelledException } from 'pdfjs-dist'

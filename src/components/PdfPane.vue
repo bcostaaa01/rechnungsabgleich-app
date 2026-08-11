@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import type { PDFDocumentProxy } from '@/pdf/pdfjs'
+import { onMounted, ref, shallowRef, watch } from 'vue'
+import type { PDFDocumentProxy, PageViewport, RenderTask } from '@/pdf/pdfjs'
+import { RenderingCancelledException } from '@/pdf/pdfjs'
 import { renderPageToCanvas } from '@/pdf/renderPage'
 import { Button } from '@rechnungsabgleich/design-system'
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from '@lucide/vue'
@@ -11,6 +12,7 @@ const currentPage = ref(1)
 const scale = ref(1.25)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 const scrollContainerEl = ref<HTMLDivElement | null>(null)
+const lastViewport = shallowRef<PageViewport | null>(null)
 
 const MIN_SCALE = 0.5
 const MAX_SCALE = 3
@@ -20,7 +22,14 @@ const SCALE_STEP = 0.25
 // navigates pages faster than a render completes.
 let renderToken = 0
 
-async function render() {
+// The currently in-flight render, if any. pdf.js rejects `RenderTask.promise`
+// (it does not throw synchronously from `page.render()`) when a second
+// render targets a canvas that's already mid-render, so every new render
+// must cancel whatever's still running first. `.cancel()` on an
+// already-settled task is a safe no-op.
+let activeRenderTask: RenderTask | null = null
+
+async function render(): Promise<void> {
   const doc = props.doc
   const canvas = canvasEl.value
   if (!doc || !canvas) return
@@ -28,7 +37,22 @@ async function render() {
   const token = ++renderToken
   const page = await doc.getPage(currentPage.value)
   if (token !== renderToken) return
-  await renderPageToCanvas(page, canvas, scale.value)
+
+  activeRenderTask?.cancel()
+
+  const viewport = page.getViewport({ scale: scale.value })
+  lastViewport.value = viewport
+
+  const task = renderPageToCanvas(page, canvas, viewport)
+  activeRenderTask = task
+
+  try {
+    await task.promise
+  } catch (err) {
+    if (!(err instanceof RenderingCancelledException)) throw err
+  } finally {
+    if (activeRenderTask === task) activeRenderTask = null
+  }
 }
 
 // Re-renders for a new zoom level while keeping the same point on the page

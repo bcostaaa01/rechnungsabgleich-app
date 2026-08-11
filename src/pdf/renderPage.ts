@@ -1,18 +1,17 @@
-import type { PDFPageProxy } from '@/pdf/pdfjs'
+import type { PDFPageProxy, PageViewport, RenderTask } from '@/pdf/pdfjs'
 
-// Renders a page to a canvas at the given scale. No unit test for this one
-// -- jsdom has no canvas implementation without the native `canvas` npm
-// package, and SPEC.md §4 already scopes rendering as "hard to test,"
-// living outside core/ without a testing mandate.
-export async function renderPageToCanvas(
+// Fully synchronous: sets the canvas's pixel dimensions and returns the
+// RenderTask immediately (before pdf.js's internal same-canvas-in-use check
+// has even run), so the caller can track and `.cancel()` it ahead of
+// starting a new render, rather than this function swallowing that race
+// internally by awaiting its own `.promise`.
+export function renderPageToCanvas(
   page: PDFPageProxy,
   canvas: HTMLCanvasElement,
-  scale: number,
-): Promise<void> {
-  const viewport = page.getViewport({ scale })
+  viewport: PageViewport,
+): RenderTask {
   canvas.width = viewport.width
   canvas.height = viewport.height
 
-  const renderTask = page.render({ canvas, viewport })
-  await renderTask.promise
+  return page.render({ canvas, viewport })
 }
