@@ -3,12 +3,18 @@ import type { InvoiceLine } from '@/core/cii/types'
 import type { Finding } from '@/core/checks/types'
 import { formatEUR, formatQuantity } from '@/core/money'
 import { unitLabel } from '@/core/cii/units'
+import { amountSearchText } from '@/pdf/locate'
 import { useReviewStore } from '@/stores/review'
 import { CheckCircle2, Flag } from '@lucide/vue'
 
 const props = defineProps<{ lines: InvoiceLine[]; findings: Finding[] }>()
 
 const review = useReviewStore()
+
+function selectLine(line: InvoiceLine) {
+  review.select(line.lineId)
+  review.setHighlight(amountSearchText(line.lineTotal), 'neutral')
+}
 
 // Error takes priority over warning when a row has both.
 function rowSeverity(lineId: string): 'error' | 'warning' | null {
@@ -50,7 +56,7 @@ function onNoteInput(lineId: string, event: Event) {
               'bg-warning/5': rowSeverity(line.lineId) === 'warning',
               'ring-1 ring-inset ring-ink/30': review.selectedLineId === line.lineId,
             }"
-            @click="review.select(line.lineId)"
+            @click="selectLine(line)"
           >
             <td class="num px-3 py-2 whitespace-nowrap">
               <span class="inline-flex items-center gap-1.5">

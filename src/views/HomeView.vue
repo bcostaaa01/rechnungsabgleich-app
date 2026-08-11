@@ -2,6 +2,7 @@
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useInvoiceStore } from '@/stores/invoice'
 import { useReviewStore } from '@/stores/review'
+import { amountSearchText } from '@/pdf/locate'
 import DropZone from '@/components/DropZone.vue'
 import PdfPane from '@/components/PdfPane.vue'
 import PositionTable from '@/components/PositionTable.vue'
@@ -28,6 +29,13 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return target instanceof HTMLElement && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
 }
 
+// Mirrors PositionTable.vue's row click -- keyboard nav should drive the
+// PDF highlight too, not just the selection ring.
+function highlightSelectedLine() {
+  const line = store.invoice?.lines.find((l) => l.lineId === review.selectedLineId)
+  if (line) review.setHighlight(amountSearchText(line.lineTotal), 'neutral')
+}
+
 // SPEC.md §7: "Keyboard: j/k next/previous position, a accept, f flag,
 // ? shortcut overlay." Plain, unmodified keys only -- bail on Ctrl/Cmd/Alt
 // so browser shortcuts (Ctrl+F, ...) and text entry in the note field keep
@@ -41,9 +49,11 @@ function onKeydown(event: KeyboardEvent) {
   } else if (event.key === 'j') {
     review.selectNext(lineIds.value)
     activeTab.value = 'positionen'
+    highlightSelectedLine()
   } else if (event.key === 'k') {
     review.selectPrevious(lineIds.value)
     activeTab.value = 'positionen'
+    highlightSelectedLine()
   } else if (event.key === 'a' && review.selectedLineId) {
     review.toggleAccept(review.selectedLineId)
   } else if (event.key === 'f' && review.selectedLineId) {
@@ -188,7 +198,7 @@ const {
             <PositionTable :lines="store.invoice.lines" :findings="store.findings" />
           </div>
           <div v-else id="panel-pruefung" role="tabpanel" aria-labelledby="tab-pruefung">
-            <FindingList :findings="store.findings" />
+            <FindingList :findings="store.findings" @show-position="activeTab = 'positionen'" />
           </div>
         </div>
       </div>
