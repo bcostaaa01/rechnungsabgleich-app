@@ -64,6 +64,26 @@ import { rules } from '@/core/checks/rules'
         </li>
       </ul>
 
+      <h2 class="mt-8 font-semibold text-ink">Datenschutz</h2>
+      <p class="mt-3">
+        Rechnungsdaten (PDF, XML) verlassen das Gerät nie – die Prüfung läuft vollständig im
+        Browser, ohne Server, ohne Speicherung.
+      </p>
+      <p class="mt-3">
+        Für anonyme Nutzungsstatistiken (z. B. Seitenaufrufe) kommt
+        <a
+          href="https://vercel.com/docs/analytics/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="underline underline-offset-2 hover:text-muted"
+          >Vercel Web Analytics</a
+        >
+        zum Einsatz. Der Dienst verwendet keine Cookies und keine dauerhaften Kennungen –
+        Besucher werden über einen Hash aus der Anfrage identifiziert, der nach 24 Stunden
+        verworfen wird. Da keine personenbezogenen Daten gespeichert werden, ist kein
+        Consent-Banner erforderlich.
+      </p>
+
       <h2 class="mt-8 font-semibold text-ink">Offizielle Quellen</h2>
       <ul class="mt-3 space-y-1.5">
         <li>
