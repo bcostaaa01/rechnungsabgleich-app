@@ -11,7 +11,10 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
     <div class="flex items-center justify-between border-b border-border px-4 py-1.5 text-xs">
       <RouterLink to="/" class="font-semibold tracking-tight text-ink">rechnungsabgleich</RouterLink>
       <div class="flex items-center gap-3">
-        <RouterLink to="/info" class="inline-flex items-center gap-1 text-muted hover:text-ink">
+        <RouterLink
+          to="/info"
+          class="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-muted transition-colors hover:bg-border/40 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+        >
           <Info :size="14" aria-hidden="true" />
           Info &amp; Quellen
         </RouterLink>
