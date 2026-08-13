@@ -9,7 +9,12 @@ import ThemeToggle from '@/components/ThemeToggle.vue'
   <Analytics />
   <div class="flex h-screen flex-col">
     <div class="flex items-center justify-between border-b border-border px-4 py-1.5 text-xs">
-      <RouterLink to="/" class="font-semibold tracking-tight text-ink">rechnungsabgleich</RouterLink>
+      <RouterLink
+        to="/"
+        class="rounded-lg px-2 py-1 font-semibold tracking-tight text-ink transition-colors hover:bg-border/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      >
+        rechnungsabgleich
+      </RouterLink>
       <div class="flex items-center gap-3">
         <RouterLink
           to="/info"
