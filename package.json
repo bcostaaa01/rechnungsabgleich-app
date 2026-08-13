@@ -57,6 +57,11 @@
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^3.3.7"
   },
+  "overrides": {
+    "@vercel/analytics": {
+      "vue-router": "$vue-router"
+    }
+  },
   "engines": {
     "node": "^22.18.0 || >=24.12.0"
   }
