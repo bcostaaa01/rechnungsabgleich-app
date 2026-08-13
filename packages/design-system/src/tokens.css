@@ -21,6 +21,21 @@
   --color-error: #b91c1c;
   --color-warning: #b45309;
 
+  /* PdfPane.vue's click-to-highlight overlay, drawn on top of the
+     rendered PDF page. Deliberately not overridden under .dark below,
+     unlike every other colour here: the overlay always sits on real
+     paper (white/light, from the PDF's own rendered pixels), never on
+     app chrome, so it must stay tuned for a light surface regardless of
+     which theme the surrounding UI is in. Reusing --color-error/warning
+     as-is would be wrong twice over -- their dark-mode values are
+     lightened *for a dark background* and read at ~2.8:1 against a white
+     PDF page (vs. ~6.7:1 for the light-mode shade), and --color-ink's
+     dark value is near-white, ~1.03:1 against that same page --
+     functionally invisible. */
+  --color-pdf-highlight-error: #b91c1c;
+  --color-pdf-highlight-warning: #b45309;
+  --color-pdf-highlight-neutral: #18181b;
+
   --font-sans:
     Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
     'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;

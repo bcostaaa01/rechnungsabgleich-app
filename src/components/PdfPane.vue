@@ -156,11 +156,17 @@ const overlayRects = computed(() => {
   return match.rects.map((rect) => rectToViewport(rect, viewport))
 })
 
+// Uses the fixed --color-pdf-highlight-* tokens, not the theme-reactive
+// border-error/border-warning/border-ink utilities used elsewhere in the
+// UI: this box is drawn on the rendered PDF page, which is real paper and
+// stays light regardless of app theme, so the overlay colour must too --
+// see tokens.css's comment for the measured dark-mode contrast failure
+// this replaced (a near-invisible ~1.03:1 neutral border in dark mode).
 const highlightToneClass = computed(() => {
   const tone = review.activeHighlight?.tone
-  if (tone === 'error') return 'border-error bg-error/10'
-  if (tone === 'warning') return 'border-warning bg-warning/10'
-  return 'border-ink'
+  if (tone === 'error') return 'border-pdf-highlight-error bg-pdf-highlight-error/10'
+  if (tone === 'warning') return 'border-pdf-highlight-warning bg-pdf-highlight-warning/10'
+  return 'border-pdf-highlight-neutral'
 })
 
 function prefersReducedMotion(): boolean {
