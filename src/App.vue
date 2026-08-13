@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import { Info } from '@lucide/vue'
+import { Analytics } from '@vercel/analytics/vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 </script>
 
 <template>
+  <Analytics />
   <div class="flex h-screen flex-col">
     <div class="flex items-center justify-between border-b border-border px-4 py-1.5 text-xs">
       <RouterLink to="/" class="font-semibold tracking-tight text-ink">rechnungsabgleich</RouterLink>
