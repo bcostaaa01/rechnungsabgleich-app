@@ -94,6 +94,24 @@ attributes pass through automatically (not declared as explicit props).
 - **error** / **warning** — tinted background matching the severity
   colour. Finding severity tags, the header error count.
 
+### Tooltip (`packages/design-system/src/Tooltip.vue`)
+
+`label: string`, `placement`: `top` \| `bottom` (default `top`).
+
+Wraps a single trigger element (usually a ghost `Button`) and shows a small
+floating label on hover or keyboard focus. CSS-only (`group-hover`/
+`group-focus-within`, no positioning library) — matches the "no decorative
+motion" rule via the global `prefers-reduced-motion` override in
+`src/assets/base.css`. The bubble is `aria-hidden`: it's a sighted/mouse
+affordance only, since every icon-only trigger it wraps already carries its
+own `aria-label` for screen readers.
+
+Used on icon-only controls where the icon alone doesn't carry enough
+meaning: the theme toggle, the PDF page-nav/zoom buttons, the header
+shortcuts button, and the per-row accept/flag buttons in the position
+table. Buttons that already pair an icon with visible text (e.g. "Neue
+Rechnung laden") don't need one.
+
 ## Icons
 
 [`@lucide/vue`](https://lucide.dev) — ISC licence, tree-shakeable

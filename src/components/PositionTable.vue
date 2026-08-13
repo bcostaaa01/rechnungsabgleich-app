@@ -5,6 +5,7 @@ import { formatEUR, formatQuantity } from '@/core/money'
 import { unitLabel } from '@/core/cii/units'
 import { amountSearchText } from '@/pdf/locate'
 import { useReviewStore } from '@/stores/review'
+import { Tooltip } from '@rechnungsabgleich/design-system'
 import { CheckCircle2, Flag } from '@lucide/vue'
 
 const props = defineProps<{ lines: InvoiceLine[]; findings: Finding[] }>()
@@ -81,26 +82,30 @@ function onNoteInput(lineId: string, event: Event) {
             <td class="num px-3 py-2 text-right whitespace-nowrap">{{ formatEUR(line.lineTotal) }}</td>
             <td class="px-3 py-2 whitespace-nowrap">
               <span class="inline-flex items-center gap-1">
-                <button
-                  type="button"
-                  class="rounded p-1 hover:bg-border/40"
-                  :class="review.reviewFor(line.lineId).status === 'accepted' ? 'text-ink' : 'text-muted'"
-                  :aria-pressed="review.reviewFor(line.lineId).status === 'accepted'"
-                  aria-label="Position akzeptieren"
-                  @click.stop="review.toggleAccept(line.lineId)"
-                >
-                  <CheckCircle2 :size="16" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  class="rounded p-1 hover:bg-border/40"
-                  :class="review.reviewFor(line.lineId).status === 'flagged' ? 'text-warning' : 'text-muted'"
-                  :aria-pressed="review.reviewFor(line.lineId).status === 'flagged'"
-                  aria-label="Position flaggen"
-                  @click.stop="review.toggleFlag(line.lineId)"
-                >
-                  <Flag :size="16" aria-hidden="true" />
-                </button>
+                <Tooltip label="Position akzeptieren">
+                  <button
+                    type="button"
+                    class="rounded p-1 hover:bg-border/40"
+                    :class="review.reviewFor(line.lineId).status === 'accepted' ? 'text-ink' : 'text-muted'"
+                    :aria-pressed="review.reviewFor(line.lineId).status === 'accepted'"
+                    aria-label="Position akzeptieren"
+                    @click.stop="review.toggleAccept(line.lineId)"
+                  >
+                    <CheckCircle2 :size="16" aria-hidden="true" />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Position flaggen">
+                  <button
+                    type="button"
+                    class="rounded p-1 hover:bg-border/40"
+                    :class="review.reviewFor(line.lineId).status === 'flagged' ? 'text-warning' : 'text-muted'"
+                    :aria-pressed="review.reviewFor(line.lineId).status === 'flagged'"
+                    aria-label="Position flaggen"
+                    @click.stop="review.toggleFlag(line.lineId)"
+                  >
+                    <Flag :size="16" aria-hidden="true" />
+                  </button>
+                </Tooltip>
               </span>
             </td>
           </tr>

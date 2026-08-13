@@ -7,7 +7,7 @@ import { locateIban, locateText, type LocateMatch, type Rect } from '@/pdf/locat
 import { useInvoiceStore } from '@/stores/invoice'
 import { useReviewStore } from '@/stores/review'
 import type { ActiveHighlight } from '@/stores/review'
-import { Button } from '@rechnungsabgleich/design-system'
+import { Button, Tooltip } from '@rechnungsabgleich/design-system'
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from '@lucide/vue'
 
 const props = defineProps<{ doc: PDFDocumentProxy | null }>()
@@ -240,31 +240,39 @@ function zoomIn() {
         </div>
       </div>
       <div class="flex shrink-0 items-center justify-center gap-4 border-t border-border px-3 py-2 text-sm">
-        <Button
-          variant="ghost"
-          :disabled="currentPage <= 1"
-          aria-label="Vorherige Seite"
-          @click="previousPage"
-        >
-          <ChevronLeft :size="16" aria-hidden="true" />
-        </Button>
+        <Tooltip label="Vorherige Seite">
+          <Button
+            variant="ghost"
+            :disabled="currentPage <= 1"
+            aria-label="Vorherige Seite"
+            @click="previousPage"
+          >
+            <ChevronLeft :size="16" aria-hidden="true" />
+          </Button>
+        </Tooltip>
         <span class="num">Seite {{ currentPage }} / {{ doc.numPages }}</span>
-        <Button
-          variant="ghost"
-          :disabled="currentPage >= doc.numPages"
-          aria-label="Nächste Seite"
-          @click="nextPage"
-        >
-          <ChevronRight :size="16" aria-hidden="true" />
-        </Button>
+        <Tooltip label="Nächste Seite">
+          <Button
+            variant="ghost"
+            :disabled="currentPage >= doc.numPages"
+            aria-label="Nächste Seite"
+            @click="nextPage"
+          >
+            <ChevronRight :size="16" aria-hidden="true" />
+          </Button>
+        </Tooltip>
         <span class="mx-2 h-4 border-l border-border" />
-        <Button variant="ghost" :disabled="scale <= MIN_SCALE" aria-label="Verkleinern" @click="zoomOut">
-          <ZoomOut :size="16" aria-hidden="true" />
-        </Button>
+        <Tooltip label="Verkleinern">
+          <Button variant="ghost" :disabled="scale <= MIN_SCALE" aria-label="Verkleinern" @click="zoomOut">
+            <ZoomOut :size="16" aria-hidden="true" />
+          </Button>
+        </Tooltip>
         <span class="num w-12 text-center">{{ Math.round(scale * 100) }}%</span>
-        <Button variant="ghost" :disabled="scale >= MAX_SCALE" aria-label="Vergrößern" @click="zoomIn">
-          <ZoomIn :size="16" aria-hidden="true" />
-        </Button>
+        <Tooltip label="Vergrößern">
+          <Button variant="ghost" :disabled="scale >= MAX_SCALE" aria-label="Vergrößern" @click="zoomIn">
+            <ZoomIn :size="16" aria-hidden="true" />
+          </Button>
+        </Tooltip>
       </div>
     </template>
   </div>

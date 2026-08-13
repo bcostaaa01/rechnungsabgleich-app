@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { Moon, Sun } from '@lucide/vue'
-import { Button } from '@rechnungsabgleich/design-system'
+import { Button, Tooltip } from '@rechnungsabgleich/design-system'
 import { useTheme } from '@/composables/useTheme'
 
 const { theme, toggleTheme } = useTheme()
 </script>
 
 <template>
-  <Button
-    variant="ghost"
-    :aria-label="theme === 'dark' ? 'Zu hellem Modus wechseln' : 'Zu dunklem Modus wechseln'"
-    @click="toggleTheme"
+  <Tooltip
+    :label="theme === 'dark' ? 'Zu hellem Modus wechseln' : 'Zu dunklem Modus wechseln'"
+    placement="bottom"
+    align="end"
   >
-    <Sun v-if="theme === 'dark'" :size="16" aria-hidden="true" />
-    <Moon v-else :size="16" aria-hidden="true" />
-  </Button>
+    <Button
+      variant="ghost"
+      :aria-label="theme === 'dark' ? 'Zu hellem Modus wechseln' : 'Zu dunklem Modus wechseln'"
+      @click="toggleTheme"
+    >
+      <Sun v-if="theme === 'dark'" :size="16" aria-hidden="true" />
+      <Moon v-else :size="16" aria-hidden="true" />
+    </Button>
+  </Tooltip>
 </template>
