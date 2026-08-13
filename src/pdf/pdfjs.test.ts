@@ -12,7 +12,10 @@ describe('pdfjs worker wiring', () => {
 
     expect(typeof workerSrc).toBe('string')
     expect(workerSrc.length).toBeGreaterThan(0)
-    expect(workerSrc).toMatch(/pdf\.worker\.min\.mjs$/)
+    // Points at pdfWorkerEntry.ts (which statically imports the pinned
+    // pdf.worker.min.mjs), not the vendor file directly -- see that
+    // module for why.
+    expect(workerSrc).toMatch(/pdfWorkerEntry/)
     expect(pdfjsLib.version).toBe('6.2.108')
   })
 })
