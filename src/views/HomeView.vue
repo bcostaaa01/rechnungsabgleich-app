@@ -13,7 +13,7 @@ import ExportMenu from '@/components/ExportMenu.vue'
 import ShortcutOverlay from '@/components/ShortcutOverlay.vue'
 import LoadingSteps from '@/components/LoadingSteps.vue'
 import { Badge, Button } from '@rechnungsabgleich/design-system'
-import { AlertCircle, RotateCcw } from '@lucide/vue'
+import { AlertCircle, Keyboard, RotateCcw } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 import { useResetConfirm } from '@/composables/useResetConfirm'
 
@@ -115,6 +115,9 @@ const {
         {{ errorCount }} Fehler
       </Badge>
       <span v-else class="shrink-0 text-xs whitespace-nowrap text-muted">Keine Fehler</span>
+      <Button variant="ghost" class="shrink-0" aria-label="Tastaturkürzel anzeigen" @click="showShortcuts = true">
+        <Keyboard :size="14" aria-hidden="true" />
+      </Button>
       <Button variant="ghost" class="shrink-0 whitespace-nowrap" @click="guardedReset()">
         <RotateCcw :size="14" aria-hidden="true" />
         Neue Rechnung laden
