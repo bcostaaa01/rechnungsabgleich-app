@@ -95,3 +95,43 @@ Not used by an automated test (no checks-pipeline assertions to make --
 the invoice is deliberately clean, and it isn't wired to the
 "Beispielrechnung laden" button); load it by hand via drag-and-drop
 (`npm run dev`) during manual verification of the gutter feature.
+
+## `en16931-payment.{pdf,xml}`
+
+Same invoice shape as `en16931-sample` (same seller/buyer, same two line
+items, same totals), invoice number `2024-0817` -- built for the IBAN
+checksum + PDF-vs-XML bank-detail checks (R-IBAN-01, R-PDF-03). One
+deliberate defect: the XML's `IBANID` is `DE89370400440532013099`, a
+mutated-checksum variant of the canonical Bundesbank example IBAN (the
+genuine one, `DE89370400440532013000`, is what `tests/core/iban.test.ts`
+uses as its valid case). The PDF prints the *same* bad value, spaced
+(`IBAN: DE89 3704 0044 0532 0130 99`) -- so the checksum is wrong, but the
+PDF and XML agree with each other about what that wrong value is.
+
+That combination is deliberate: it decouples the two rules the way
+`en16931-broken.pdf` decouples R-LINE-01 from R-PDF-01. R-IBAN-01 checks
+the IBAN's own structural validity, independent of the PDF, so it fires.
+R-PDF-03 checks only whether the XML's IBAN is *findable* in the PDF text,
+regardless of whether that value is itself valid, so it correctly stays
+silent -- the bad IBAN is right there on the page, findable and clickable.
+
+| Field | Value |
+|---|---|
+| Profile | EN 16931 |
+| Rechnungsnummer | 2024-0817 |
+| Bruttobetrag | 2.746,00 € |
+| IBAN (XML `IBANID`) | `DE89370400440532013099` (invalid checksum) |
+| IBAN (PDF, printed) | `DE89 3704 0044 0532 0130 99` (same value, spaced) |
+
+Expected findings when run through the check suite: exactly one,
+`R-IBAN-01`, carrying `matchKind: 'iban'` and `matchText` set to the
+printed IBAN so the click-to-highlight gutter can locate it on the page.
+Everything else -- including R-PDF-03 -- stays clean.
+
+Used by `en16931-payment.test.ts`, which runs the real pipeline (extract →
+parse → checks) against the actual PDF, asserts exactly this one finding,
+and confirms the IBAN is genuinely locatable via `locateIban` -- not just
+that the rule fires in isolation with a hand-built `Invoice`. Also worth
+dragging into the running app by hand (`npm run dev`) to click the
+R-IBAN-01 finding and watch the PDF jump to and highlight the printed
+value.
