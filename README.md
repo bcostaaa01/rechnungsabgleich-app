@@ -63,7 +63,11 @@ most-cited red flag in real invoice/vendor-fraud cases (mismatched or
 corrupted IBANs), so it's a natural extension of the same PDF-vs-XML thesis
 applied to payment data. Findings carry a severity (`error` beyond
 tolerance, `warning` within a user-adjustable ±0,01 € band) and a
-plain-German explanation.
+plain-German explanation. When an invoice carries an IBAN, it's shown as
+its own line in the header (grouped in blocks of 4, `DE89 3704 0044 0532
+0130 00`) regardless of whether either check fires — the moment a
+reviewer most wants to glance at the account number is when nothing did,
+to eyeball it against a vendor they already trust.
 
 **The gutter** — click a finding or a position row (or use `j`/`k` to move
 between rows) and the PDF pane jumps to the right page and draws a highlight
@@ -160,10 +164,6 @@ Stated plainly rather than hidden:
 - `R-IBAN-01` checks checksum and general IBAN shape (ISO 13616), not the
   per-country exact length — a 34+-country length table is real external
   data with its own maintenance surface, deliberately out of scope.
-- The IBAN only surfaces in the UI via findings — there's no always-visible
-  payment-details display, so a reviewer sees it only when `R-IBAN-01` or
-  `R-PDF-03` actually fires, not as a routine "here's the account on file"
-  check.
 - Skonto (early-payment discount) terms live in free text in most profiles
   and are shown as-is, not parsed structurally.
 - No full EN 16931 conformance validation — see the KoSIT validator link

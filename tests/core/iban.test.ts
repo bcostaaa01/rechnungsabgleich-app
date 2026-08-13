@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isValidIban } from '@/core/iban'
+import { formatIban, isValidIban } from '@/core/iban'
 
 describe('isValidIban', () => {
   it('accepts the canonical German Bundesbank example', () => {
@@ -32,5 +32,19 @@ describe('isValidIban', () => {
 
   it('rejects a too-short string', () => {
     expect(isValidIban('DE1234')).toBe(false)
+  })
+})
+
+describe('formatIban', () => {
+  it('groups a 22-char German IBAN into blocks of 4 with a trailing 2-char block', () => {
+    expect(formatIban('DE89370400440532013000')).toBe('DE89 3704 0044 0532 0130 00')
+  })
+
+  it('groups a 20-char Austrian-length IBAN evenly, no trailing space', () => {
+    expect(formatIban('AT611904300234573201')).toBe('AT61 1904 3002 3457 3201')
+  })
+
+  it('leaves a trailing partial block ungrouped rather than padding it', () => {
+    expect(formatIban('DE03123456789012345')).toBe('DE03 1234 5678 9012 345')
   })
 })

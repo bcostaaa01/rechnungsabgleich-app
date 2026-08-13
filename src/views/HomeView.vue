@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useInvoiceStore } from '@/stores/invoice'
 import { useReviewStore } from '@/stores/review'
 import { amountSearchText } from '@/pdf/locate'
+import { formatIban } from '@/core/iban'
 import DropZone from '@/components/DropZone.vue'
 import PdfPane from '@/components/PdfPane.vue'
 import PositionTable from '@/components/PositionTable.vue'
@@ -103,6 +104,9 @@ const {
         <span>{{ store.invoice.seller.name }}</span>
       </span>
       <Badge tone="neutral">{{ store.invoice.profile }}</Badge>
+      <span v-if="store.invoice.iban" class="whitespace-nowrap text-muted">
+        IBAN <span class="num text-ink">{{ formatIban(store.invoice.iban) }}</span>
+      </span>
       <span class="flex-1" />
       <Badge v-if="errorCount > 0" tone="error" class="shrink-0 gap-1 whitespace-nowrap">
         <AlertCircle :size="12" aria-hidden="true" />

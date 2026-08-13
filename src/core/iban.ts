@@ -31,3 +31,14 @@ export function isValidIban(iban: string): boolean {
 
   return remainder === 1
 }
+
+// Groups into blocks of 4 the way IBANs are conventionally printed
+// (`DE89 3704 0044 0532 0130 00`), for display only -- mirrors
+// money.ts's formatEUR/formatQuantity being display-formatting siblings
+// of the money logic they format. No length assumption: a trailing
+// partial block (any length from 1-3) is left ungrouped rather than
+// padded, consistent with this module's no-per-country-length-table
+// stance.
+export function formatIban(iban: string): string {
+  return iban.replace(/(.{4})(?=.)/g, '$1 ')
+}
