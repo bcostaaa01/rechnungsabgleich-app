@@ -1,6 +1,6 @@
 import Big from 'big.js'
 import { describe, expect, it } from 'vitest'
-import { amountSearchText, locateText } from '@/pdf/locate'
+import { amountSearchText, locateIban, locateText } from '@/pdf/locate'
 import type { PositionedTextItem } from '@/pdf/textLayer'
 
 function item(str: string, x: number, y: number, width: number, height: number): PositionedTextItem {
@@ -75,5 +75,59 @@ describe('locateText', () => {
     expect(match?.rects).toHaveLength(2)
     expect(match?.rects[0]).toEqual({ x: 0, y: 0, width: 80, height: 5 })
     expect(match?.rects[1]).toEqual({ x: 0, y: 10, width: 80, height: 5 })
+  })
+})
+
+describe('locateIban', () => {
+  it('returns null for an empty search string', () => {
+    expect(locateIban([[item('IBAN: DE89 3704 0044 0532 0130 00', 0, 0, 100, 10)]], '')).toBeNull()
+  })
+
+  it('returns null for an empty page', () => {
+    expect(locateIban([[]], 'DE89370400440532013000')).toBeNull()
+  })
+
+  it('returns null when nothing matches', () => {
+    const pages = [[item('IBAN: AT61 1904 3002 3457 3201', 0, 0, 100, 10)]]
+    expect(locateIban(pages, 'DE89370400440532013000')).toBeNull()
+  })
+
+  it('matches a spaced IBAN in the PDF text against a compact XML IBAN, case-insensitively', () => {
+    const pages = [[item('iban: de89 3704 0044 0532 0130 00', 0, 0, 100, 10)]]
+
+    const match = locateIban(pages, 'DE89370400440532013000')
+
+    expect(match).not.toBeNull()
+    expect(match?.page).toBe(1)
+    expect(match?.rects).toEqual([{ x: 0, y: 0, width: 100, height: 10 }])
+  })
+
+  it('unions the rects of two items when the match spans them exactly at a stripped-space boundary', () => {
+    // The join-inserted space between the two items lands exactly where a
+    // real space already sits inside the printed IBAN ("...0044" | "0532...")
+    // -- proving the match is correct by construction (range-mapping refers
+    // to original, unstripped positions), not by coincidence of layout.
+    const pages = [
+      [
+        item('IBAN: DE89 3704 0044', 0, 0, 100, 10),
+        item('0532 0130 00', 110, 0, 60, 10),
+      ],
+    ]
+
+    const match = locateIban(pages, 'DE89370400440532013000')
+
+    expect(match).not.toBeNull()
+    expect(match?.rects).toEqual([{ x: 0, y: 0, width: 170, height: 10 }])
+  })
+
+  it('finds only the first page with any match', () => {
+    const pages = [
+      [item('IBAN: AT61 1904 3002 3457 3201', 0, 0, 100, 5)],
+      [item('IBAN: DE89 3704 0044 0532 0130 00', 0, 0, 100, 5)],
+    ]
+
+    const match = locateIban(pages, 'DE89370400440532013000')
+
+    expect(match?.page).toBe(2)
   })
 })
