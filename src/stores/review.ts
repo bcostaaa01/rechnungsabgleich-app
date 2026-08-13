@@ -11,6 +11,11 @@ export type HighlightTone = 'neutral' | 'error' | 'warning'
 export interface ActiveHighlight {
   searchText: string
   tone: HighlightTone
+  // 'iban' selects the whitespace-tolerant matcher (locateIban) instead of
+  // the exact-substring one (locateText) -- see PdfPane.vue's
+  // locateHighlight. Defaults to 'exact' so existing call sites don't need
+  // to change.
+  kind: 'exact' | 'iban'
 }
 
 export const useReviewStore = defineStore('review', () => {
@@ -52,8 +57,8 @@ export const useReviewStore = defineStore('review', () => {
     selectedLineId.value = lineId
   }
 
-  function setHighlight(searchText: string, tone: HighlightTone = 'neutral') {
-    activeHighlight.value = { searchText, tone }
+  function setHighlight(searchText: string, tone: HighlightTone = 'neutral', kind: 'exact' | 'iban' = 'exact') {
+    activeHighlight.value = { searchText, tone, kind }
   }
 
   function clearHighlight() {

@@ -19,13 +19,19 @@ function ruleInfo(ruleId: string) {
   return rules.find((entry) => entry.id === ruleId)
 }
 
-// Only findings with a printed "actual" value have anything to search the
-// PDF for -- R-CUR-01 and R-PDF-01/02 never carry one (R-PDF-01/02 fire
-// exactly when a value is confirmed absent from the PDF text, so there's
-// nothing to highlight for those by definition).
+// A finding is clickable when it carries something to search the PDF for:
+// either a printed "actual" Money value, or (for R-IBAN-01) matchText with
+// a non-default matchKind. R-CUR-01 and R-PDF-01/02/03 carry neither --
+// the R-PDF-0x rules fire exactly when a value is confirmed absent from
+// the PDF text, so there's nothing to highlight for those by definition.
 function onFindingClick(finding: Finding) {
-  if (finding.actual === undefined) return
-  review.setHighlight(amountSearchText(finding.actual), severityTone(finding.severity))
+  if (finding.matchText !== undefined) {
+    review.setHighlight(finding.matchText, severityTone(finding.severity), finding.matchKind ?? 'exact')
+  } else if (finding.actual !== undefined) {
+    review.setHighlight(amountSearchText(finding.actual), severityTone(finding.severity))
+  } else {
+    return
+  }
   if (finding.target.kind === 'line') {
     review.select(finding.target.lineId)
     emit('showPosition')
@@ -40,7 +46,7 @@ function onFindingClick(finding: Finding) {
   <ul v-else class="divide-y divide-border">
     <li v-for="(finding, index) in findings" :key="`${finding.ruleId}-${index}`">
       <button
-        v-if="finding.actual !== undefined"
+        v-if="finding.actual !== undefined || finding.matchText !== undefined"
         type="button"
         class="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-border/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
         @click="onFindingClick(finding)"

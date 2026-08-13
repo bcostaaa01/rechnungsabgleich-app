@@ -3,9 +3,10 @@ import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import type { PDFDocumentProxy, PageViewport, RenderTask } from '@/pdf/pdfjs'
 import { RenderingCancelledException } from '@/pdf/pdfjs'
 import { renderPageToCanvas } from '@/pdf/renderPage'
-import { locateText, type Rect } from '@/pdf/locate'
+import { locateIban, locateText, type LocateMatch, type Rect } from '@/pdf/locate'
 import { useInvoiceStore } from '@/stores/invoice'
 import { useReviewStore } from '@/stores/review'
+import type { ActiveHighlight } from '@/stores/review'
 import { Button } from '@rechnungsabgleich/design-system'
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from '@lucide/vue'
 
@@ -131,6 +132,15 @@ function rectToViewport(rect: Rect, viewport: PageViewport): { left: number; top
   }
 }
 
+// The one place that knows which matcher a highlight needs: 'iban' picks
+// the whitespace-tolerant matcher (invoices print IBANs spaced, the XML
+// value is compact), everything else uses plain exact-substring matching.
+function locateHighlight(highlight: ActiveHighlight): LocateMatch | null {
+  return highlight.kind === 'iban'
+    ? locateIban(invoiceStore.textLayers, highlight.searchText)
+    : locateText(invoiceStore.textLayers, highlight.searchText)
+}
+
 // Gated on the match's page equalling currentPage, not just "a match
 // exists": while a highlight-triggered page jump is still in flight, this
 // renders nothing rather than showing boxes over the wrong page's pixels
@@ -140,7 +150,7 @@ const overlayRects = computed(() => {
   const highlight = review.activeHighlight
   if (!viewport || !highlight) return []
 
-  const match = locateText(invoiceStore.textLayers, highlight.searchText)
+  const match = locateHighlight(highlight)
   if (!match || match.page !== currentPage.value) return []
 
   return match.rects.map((rect) => rectToViewport(rect, viewport))
@@ -177,7 +187,7 @@ watch(
   () => review.activeHighlight,
   async (highlight) => {
     if (!highlight) return
-    const match = locateText(invoiceStore.textLayers, highlight.searchText)
+    const match = locateHighlight(highlight)
     if (!match) return
 
     if (match.page !== currentPage.value) {
