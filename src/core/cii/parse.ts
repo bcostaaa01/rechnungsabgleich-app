@@ -185,5 +185,13 @@ export function parseCiiXml(xml: string): Invoice {
     paymentTermsText: text(
       path(settlement, 'ram:SpecifiedTradePaymentTerms', 'ram:Description'),
     ),
+    iban: text(
+      path(
+        settlement,
+        'ram:SpecifiedTradeSettlementPaymentMeans',
+        'ram:PayeePartyCreditorFinancialAccount',
+        'ram:IBANID',
+      ),
+    ),
   }
 }

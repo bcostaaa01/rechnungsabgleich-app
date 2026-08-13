@@ -73,6 +73,28 @@ describe('parseCiiXml', () => {
     expect(invoice.paymentTermsText).toContain('Skonto')
   })
 
+  it('leaves iban undefined when the XML has no payment means (SPEC.md sample has none)', () => {
+    const invoice = parseCiiXml(sampleXml)
+    expect(invoice.iban).toBeUndefined()
+  })
+
+  it('parses the IBAN when SpecifiedTradeSettlementPaymentMeans is present', () => {
+    // Per the CII HeaderTradeSettlementType XSD sequence,
+    // SpecifiedTradeSettlementPaymentMeans must sit after InvoiceCurrencyCode
+    // and before the first ApplicableTradeTax.
+    const xml = sampleXml.replace(
+      '<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>',
+      '<ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>' +
+        '<ram:SpecifiedTradeSettlementPaymentMeans>' +
+        '<ram:PayeePartyCreditorFinancialAccount>' +
+        '<ram:IBANID>DE89370400440532013000</ram:IBANID>' +
+        '</ram:PayeePartyCreditorFinancialAccount>' +
+        '</ram:SpecifiedTradeSettlementPaymentMeans>',
+    )
+    const invoice = parseCiiXml(xml)
+    expect(invoice.iban).toBe('DE89370400440532013000')
+  })
+
   it('throws a descriptive error for XML missing the CII root element', () => {
     expect(() => parseCiiXml('<foo>bar</foo>')).toThrow(/CrossIndustryInvoice/)
   })

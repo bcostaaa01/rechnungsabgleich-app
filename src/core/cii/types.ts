@@ -69,4 +69,5 @@ export interface Invoice {
   vatBreakdown: VatBreakdownEntry[]
   totals: InvoiceTotals
   paymentTermsText?: string
+  iban?: string
 }
