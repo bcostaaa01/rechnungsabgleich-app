@@ -16,6 +16,12 @@ export interface Finding {
   expected?: Money
   actual?: Money
   difference?: Money
+  // What the click-to-highlight gutter should search the PDF for, when the
+  // value isn't itself a Money amount (e.g. R-IBAN-01's printed IBAN).
+  // Defaults to 'exact' -- an IBAN needs whitespace-tolerant matching
+  // (locateIban in pdf/locate.ts), a plain amount doesn't.
+  matchText?: string
+  matchKind?: 'exact' | 'iban'
 }
 
 export interface CheckContext {

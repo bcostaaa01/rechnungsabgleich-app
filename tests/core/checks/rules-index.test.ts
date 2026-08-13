@@ -16,7 +16,7 @@ describe('rules registry', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('matches the eleven rules from SPEC.md §6', () => {
-    expect(rules).toHaveLength(11)
+  it('matches the current rule count kept in sync with SPEC.md §6', () => {
+    expect(rules).toHaveLength(13)
   })
 })

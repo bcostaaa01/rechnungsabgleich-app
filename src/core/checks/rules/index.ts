@@ -6,7 +6,8 @@ import { vatBasis, vatCalculated, vatTotal } from '@/core/checks/rules/vat-per-c
 import { grandTotal } from '@/core/checks/rules/grand-total'
 import { duePayable } from '@/core/checks/rules/due-payable'
 import { currencyConsistency } from '@/core/checks/rules/currency-consistency'
-import { pdfGrandTotal, pdfInvoiceNumber } from '@/core/checks/rules/pdf-cross-check'
+import { pdfGrandTotal, pdfInvoiceNumber, pdfIban } from '@/core/checks/rules/pdf-cross-check'
+import { ibanChecksum } from '@/core/checks/rules/iban-checksum'
 
 export interface RuleEntry {
   id: string
@@ -96,5 +97,15 @@ export const rules: RuleEntry[] = [
     id: 'R-PDF-02',
     rule: pdfInvoiceNumber,
     descriptionDe: 'Die Rechnungsnummer muss im sichtbaren PDF-Text auffindbar sein.',
+  },
+  {
+    id: 'R-PDF-03',
+    rule: pdfIban,
+    descriptionDe: 'Die IBAN muss im sichtbaren PDF-Text auffindbar sein.',
+  },
+  {
+    id: 'R-IBAN-01',
+    rule: ibanChecksum,
+    descriptionDe: 'Die IBAN muss eine gültige Prüfsumme (ISO 7064 MOD-97-10) haben.',
   },
 ]
