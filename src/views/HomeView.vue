@@ -15,9 +15,11 @@ import LoadingSteps from '@/components/LoadingSteps.vue'
 import { Badge, Button } from '@rechnungsabgleich/design-system'
 import { AlertCircle, RotateCcw } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
+import { useResetConfirm } from '@/composables/useResetConfirm'
 
 const store = useInvoiceStore()
 const review = useReviewStore()
+const { guardedReset } = useResetConfirm()
 const activeTab = ref<'positionen' | 'pruefung'>('positionen')
 const positionenTabRef = ref<HTMLButtonElement | null>(null)
 const pruefungTabRef = ref<HTMLButtonElement | null>(null)
@@ -113,7 +115,7 @@ const {
         {{ errorCount }} Fehler
       </Badge>
       <span v-else class="shrink-0 text-xs whitespace-nowrap text-muted">Keine Fehler</span>
-      <Button variant="ghost" class="shrink-0 whitespace-nowrap" @click="store.reset()">
+      <Button variant="ghost" class="shrink-0 whitespace-nowrap" @click="guardedReset()">
         <RotateCcw :size="14" aria-hidden="true" />
         Neue Rechnung laden
       </Button>
