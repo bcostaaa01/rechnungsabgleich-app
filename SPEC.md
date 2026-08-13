@@ -151,6 +151,14 @@ ram:ApplicableHeaderTradeSettlement/ram:SpecifiedTradePaymentTerms/ram:Descripti
 ```
 Skonto lives in **free text** here in most profiles. Parse it best-effort, mark it low-confidence, and write a README paragraph about why unstructured discount terms are a real-world problem. That paragraph is worth more than a fragile regex.
 
+Payment means (IBAN):
+```
+ram:ApplicableHeaderTradeSettlement/ram:SpecifiedTradeSettlementPaymentMeans
+  /ram:PayeePartyCreditorFinancialAccount/ram:IBANID
+```
+Per the CII `HeaderTradeSettlementType` XSD sequence, this element must sit
+after `InvoiceCurrencyCode` and before the first `ApplicableTradeTax`.
+
 ---
 
 ## 4. Architecture
@@ -325,10 +333,12 @@ export type Rule = (invoice: Invoice, ctx: CheckContext) => Finding[]
 | `R-CUR-01` | All amounts share one `currencyID` | — |
 | `R-PDF-01` | `GrandTotal`, as formatted, appears in the PDF text layer | — |
 | `R-PDF-02` | Invoice number appears in the PDF text layer | — |
+| `R-PDF-03` | IBAN appears in the PDF text layer (whitespace-tolerant) | — |
+| `R-IBAN-01` | IBAN passes ISO 7064 MOD-97-10 checksum + ISO 13616 shape | — |
 
 **Tolerance:** default ±0,01 €, user-adjustable in the UI. Rules receive it via `CheckContext`. Differences within tolerance produce a `warning`, not an `error` — that distinction is the product thinking.
 
-**Profile gating:** `runner.ts` filters rules by `invoice.capabilities` before running. A MINIMUM invoice must not produce eleven false errors because it has no lines.
+**Profile gating:** `runner.ts` filters rules by `invoice.capabilities` before running. A MINIMUM invoice must not produce thirteen false errors because it has no lines.
 
 `R-PDF-01/02` are the genuinely interesting ones: they're the only checks that cross the PDF/XML boundary, and they're what the product feature is actually named after. A mismatch here means the supplier's visible document says something different from the data their system will book — the exact failure mode reebuild's FAQ describes.
 

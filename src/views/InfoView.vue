@@ -45,13 +45,18 @@ import { rules } from '@/core/checks/rules'
       <h2 class="mt-8 font-semibold text-ink">Bekannte Einschränkungen</h2>
       <ul class="mt-3 list-disc space-y-1.5 pl-5">
         <li>
-          Der Abgleich zwischen PDF-Text und XML-Werten (R-PDF-01/02) ist heuristisch: CII-Daten
-          enthalten keine Koordinaten, daher wird nur nach dem Vorkommen der Zahl bzw.
-          Rechnungsnummer im extrahierten PDF-Text gesucht.
+          Der Abgleich zwischen PDF-Text und XML-Werten (R-PDF-01/02/03) ist heuristisch:
+          CII-Daten enthalten keine Koordinaten, daher wird nur nach dem Vorkommen der Zahl,
+          Rechnungsnummer bzw. IBAN im extrahierten PDF-Text gesucht.
         </li>
         <li>
           Zahlungsbedingungen (inkl. Skonto) werden derzeit nur als Freitext angezeigt, nicht
           strukturiert ausgewertet.
+        </li>
+        <li>
+          Die IBAN-Prüfung (R-IBAN-01) prüft Format und Prüfsumme (ISO 7064 MOD-97-10), aber
+          nicht die länderspezifische Soll-Länge – eine Tabelle mit über 34 Ländern wäre ein
+          eigener Pflegeaufwand außerhalb des Projektumfangs.
         </li>
         <li>
           Dieses Tool ersetzt keine vollständige EN-16931-Validierung. Für eine normkonforme
