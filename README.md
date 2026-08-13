@@ -37,7 +37,7 @@ unbemerkt bleiben – mit realen finanziellen Folgen.
 - Parses header data, line items, VAT breakdown, and totals into a typed
   domain model
 
-**Check suite** — 11 pure, unit-tested rules, each mapped to its EN 16931
+**Check suite** — 13 pure, unit-tested rules, each mapped to its EN 16931
 business rule where one exists:
 
 | Rule | Checks |
@@ -53,18 +53,29 @@ business rule where one exists:
 | `R-CUR-01` | Alle Beträge verwenden dieselbe Währung |
 | `R-PDF-01` | Bruttobetrag ist im sichtbaren PDF-Text auffindbar |
 | `R-PDF-02` | Rechnungsnummer ist im sichtbaren PDF-Text auffindbar |
+| `R-PDF-03` | IBAN ist im sichtbaren PDF-Text auffindbar |
+| `R-IBAN-01` | IBAN besteht die ISO 7064 MOD-97-10-Prüfsumme |
 
-`R-PDF-01`/`R-PDF-02` are the point of the whole app: the only two checks
-that cross the PDF/XML boundary rather than just re-deriving totals.
-Findings carry a severity (`error` beyond tolerance, `warning` within a
-user-adjustable ±0,01 € band) and a plain-German explanation.
+`R-PDF-01`/`02`/`03` are the point of the whole app: the checks that cross
+the PDF/XML boundary rather than just re-deriving totals. `R-IBAN-01` is a
+companion structural check — the invoice's bank details are the single
+most-cited red flag in real invoice/vendor-fraud cases (mismatched or
+corrupted IBANs), so it's a natural extension of the same PDF-vs-XML thesis
+applied to payment data. Findings carry a severity (`error` beyond
+tolerance, `warning` within a user-adjustable ±0,01 € band) and a
+plain-German explanation.
 
 **The gutter** — click a finding or a position row (or use `j`/`k` to move
 between rows) and the PDF pane jumps to the right page and draws a highlight
 box around the exact printed text, colour-coded by severity. This is the
 signature interaction: it's what lets a reviewer visually compare "what the
 data says" against "what's printed" without hunting through the document by
-eye.
+eye. `R-IBAN-01` findings are clickable too — a checksum-invalid IBAN is
+still presumably printed somewhere, so a reviewer can jump straight to it
+and eyeball it against a real bank statement. `R-PDF-01`/`02`/`03` never
+carry a clickable target, by definition: they fire exactly when a value is
+confirmed *absent* from the PDF, so there's nothing on the page to point
+at.
 
 **Review workflow** — accept or flag each position with an optional note,
 full keyboard navigation (`j`/`k`/`a`/`f`/`?`), and export the reviewed
@@ -80,8 +91,6 @@ page explaining the domain, the rule catalogue, and known limitations.
 
 ## Not (yet) implemented
 
-- **IBAN / bank-details cross-check** — checksum validation plus a
-  PDF-vs-XML presence check for payment details, scoped but not built.
 - Broader profile coverage in the test fixtures (MINIMUM, BASIC WL,
   EXTENDED, XRechnung) — currently all hand-built EN 16931 fixtures.
 - Structured Skonto (early-payment discount) parsing — payment terms are
@@ -145,9 +154,16 @@ has one source of truth.
 
 Stated plainly rather than hidden:
 
-- PDF-vs-XML text matching (`R-PDF-01`/`02`) is heuristic — CII carries no
-  coordinates, so it's a substring search over extracted text, not a real
+- PDF-vs-XML text matching (`R-PDF-01`/`02`/`03`) is heuristic — CII carries
+  no coordinates, so it's a substring search over extracted text, not a real
   cross-reference.
+- `R-IBAN-01` checks checksum and general IBAN shape (ISO 13616), not the
+  per-country exact length — a 34+-country length table is real external
+  data with its own maintenance surface, deliberately out of scope.
+- The IBAN only surfaces in the UI via findings — there's no always-visible
+  payment-details display, so a reviewer sees it only when `R-IBAN-01` or
+  `R-PDF-03` actually fires, not as a routine "here's the account on file"
+  check.
 - Skonto (early-payment discount) terms live in free text in most profiles
   and are shown as-is, not parsed structurally.
 - No full EN 16931 conformance validation — see the KoSIT validator link
@@ -190,8 +206,19 @@ rounding at the half-cent boundary in both directions, accumulation error,
 four-decimal unit prices, `BasisQuantity` traps, negative amounts, zero
 quantity. Fixtures in `tests/fixtures/` include a clean invoice, a
 deliberately broken one (wrong line total *and* a PDF/XML total mismatch,
-asserted to produce exactly four findings and no others), and a two-page
-invoice exercising the gutter's page-jump path.
+asserted to produce exactly four findings and no others), a two-page
+invoice exercising the gutter's page-jump path, and a payment-details
+fixture (checksum-invalid IBAN, printed and findable on the PDF) proving
+`R-IBAN-01` and `R-PDF-03` fire — and stay silent — correctly.
+
+**Trying the IBAN checks by hand:** `npm run dev`, then drag
+`tests/fixtures/en16931-payment.pdf` onto the drop zone (it isn't wired to
+the "Beispielrechnung laden" button, which only loads the clean sample).
+The Prüfung tab shows exactly one finding, `R-IBAN-01` — click it and the
+PDF pane jumps to the printed `DE89 3704 0044 0532 0130 99` and highlights
+it. Drop in `en16931-broken.pdf` or the clean `en16931-sample.pdf` instead
+to see `R-PDF-03` correctly stay silent when there's no IBAN in the
+invoice at all.
 
 ## Built with Claude Code
 
