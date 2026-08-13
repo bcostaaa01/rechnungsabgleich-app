@@ -29,8 +29,9 @@ unbemerkt bleiben – mit realen finanziellen Folgen.
 ## What it does today
 
 **Load & parse**
-- Drag-and-drop (or a bundled "Beispielrechnung laden" sample) loads a
-  ZUGFeRD/Factur-X PDF entirely client-side and extracts the embedded CII XML
+- Drag-and-drop (or one of four bundled "Beispielrechnungen" — clean,
+  arithmetically broken, invalid-IBAN, and multi-page) loads a ZUGFeRD/Factur-X
+  PDF entirely client-side and extracts the embedded CII XML
 - Detects the ZUGFeRD **profile** (MINIMUM / BASIC WL / BASIC / EN 16931 /
   EXTENDED / XRechnung) and gates the UI and checks accordingly — MINIMUM and
   BASIC WL invoices have no line items, and the app never assumes otherwise
@@ -211,14 +212,13 @@ invoice exercising the gutter's page-jump path, and a payment-details
 fixture (checksum-invalid IBAN, printed and findable on the PDF) proving
 `R-IBAN-01` and `R-PDF-03` fire — and stay silent — correctly.
 
-**Trying the IBAN checks by hand:** `npm run dev`, then drag
-`tests/fixtures/en16931-payment.pdf` onto the drop zone (it isn't wired to
-the "Beispielrechnung laden" button, which only loads the clean sample).
-The Prüfung tab shows exactly one finding, `R-IBAN-01` — click it and the
-PDF pane jumps to the printed `DE89 3704 0044 0532 0130 99` and highlights
-it. Drop in `en16931-broken.pdf` or the clean `en16931-sample.pdf` instead
-to see `R-PDF-03` correctly stay silent when there's no IBAN in the
-invoice at all.
+**Trying the IBAN checks by hand:** `npm run dev`, then click "Ungültige
+IBAN" in the empty state's sample row (or drag
+`tests/fixtures/en16931-payment.pdf` onto the drop zone directly). The
+Prüfung tab shows exactly one finding, `R-IBAN-01` — click it and the PDF
+pane jumps to the printed `DE89 3704 0044 0532 0130 99` and highlights it.
+Load "Rechnung mit Fehlern" or the clean sample instead to see `R-PDF-03`
+correctly stay silent when there's no IBAN in the invoice at all.
 
 ## Built with Claude Code
 

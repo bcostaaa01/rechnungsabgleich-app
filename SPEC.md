@@ -393,7 +393,7 @@ Not afterthoughts. These are where the "senior" reading happens.
 
 | State | Behaviour |
 |---|---|
-| Empty | Drop zone + "Beispielrechnung laden" button |
+| Empty | Drop zone + row of 4 sample buttons (clean/broken/IBAN/two-page) |
 | Loading | Progress for parse and render separately |
 | No XML attachment | "Kein ZUGFeRD-Anhang gefunden" + offer PDF-only view |
 | Unknown/missing profile | Parse defensively, banner, run only universal rules |
@@ -431,7 +431,7 @@ Commit a small set to `tests/fixtures/`:
 
 That last one is the demo. Load it in front of an interviewer and the whole product argument lands in five seconds.
 
-Bundle two fixtures in `public/` behind the "Beispielrechnung laden" button. Nobody evaluating your application has a ZUGFeRD invoice on their desktop, and that button is the difference between them seeing your work and closing the tab.
+Bundle fixtures in `public/` behind a row of sample buttons in the empty state (implemented: all four — clean, broken, invalid-IBAN, two-page). Nobody evaluating your application has a ZUGFeRD invoice on their desktop, and those buttons are the difference between them seeing your work and closing the tab.
 
 ---
 

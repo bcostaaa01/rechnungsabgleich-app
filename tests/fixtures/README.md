@@ -1,7 +1,9 @@
 # Test fixtures
 
-Committed sample invoices used by the automated test suite and the
-"Beispielrechnung laden" button (`DropZone.vue`). All are hand-built via a
+Committed sample invoices used by the automated test suite and the sample
+button row (`DropZone.vue`) — every fixture below is a copy in `public/`
+selectable from the empty state, not just droppable by hand. All are
+hand-built via a
 throwaway `pdf-lib` script (not committed -- `pdf-lib` itself stays out of
 `package.json`; generating invoices is explicitly out of scope for the app
 per `SPEC.md` §1), not sourced from the official FeRD/Mustangproject sample
@@ -26,7 +28,7 @@ routinely have both). Every check in the suite passes on it.
 
 Used by `parse.test.ts`, `extractAttachments.test.ts`,
 `textLayer.test.ts`, and the `public/beispielrechnung.pdf` copy behind
-the "Beispielrechnung laden" button.
+the "Fehlerfrei" button in the empty state's sample row.
 
 ## `en16931-broken.{pdf,xml}`
 
@@ -92,9 +94,9 @@ finding whose value is only findable on page 2 forces a real page jump
 the "more than one match on a page" multi-rect case.
 
 Not used by an automated test (no checks-pipeline assertions to make --
-the invoice is deliberately clean, and it isn't wired to the
-"Beispielrechnung laden" button); load it by hand via drag-and-drop
-(`npm run dev`) during manual verification of the gutter feature.
+the invoice is deliberately clean); loadable via the "Mehrseitig" button
+in the empty state's sample row, or by hand via drag-and-drop (`npm run
+dev`) during manual verification of the gutter feature.
 
 ## `en16931-payment.{pdf,xml}`
 

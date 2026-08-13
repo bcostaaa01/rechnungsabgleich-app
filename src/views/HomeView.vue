@@ -120,11 +120,13 @@ const {
     </header>
 
     <div v-if="!store.invoice" class="flex flex-1 items-center justify-center p-8">
-      <LoadingSteps v-if="store.loading" :current-step="store.loadingStep" />
-      <div v-else class="w-full max-w-md">
-        <DropZone @select="onFileSelect" />
-        <p v-if="store.error" class="mt-4 text-center text-sm text-error">{{ store.error }}</p>
-      </div>
+      <Transition name="view-fade" mode="out-in">
+        <LoadingSteps v-if="store.loading" key="loading" :current-step="store.loadingStep" />
+        <div v-else key="dropzone" class="w-full max-w-md">
+          <DropZone @select="onFileSelect" />
+          <p v-if="store.error" class="mt-4 text-center text-sm text-error">{{ store.error }}</p>
+        </div>
+      </Transition>
     </div>
 
     <div
@@ -211,3 +213,21 @@ const {
     <ShortcutOverlay v-if="showShortcuts" @close="showShortcuts = false" />
   </div>
 </template>
+
+<style scoped>
+/* out-in mode already guarantees the old branch fully leaves before the
+   new one enters (SPEC.md's empty/loading states) -- this just softens
+   that atomic swap into a quick crossfade instead of a hard pop, so the
+   sample buttons' disabled flash and the loading screen never read as
+   overlapping. prefers-reduced-motion collapses the duration globally
+   (src/assets/base.css), so this stays inert for anyone who's opted out. */
+.view-fade-enter-active,
+.view-fade-leave-active {
+  transition: opacity 100ms ease;
+}
+
+.view-fade-enter-from,
+.view-fade-leave-to {
+  opacity: 0;
+}
+</style>

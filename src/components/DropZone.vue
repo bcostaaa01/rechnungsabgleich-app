@@ -6,8 +6,50 @@ import { useFileDrop } from '@/composables/useFileDrop'
 
 const emit = defineEmits<{ select: [file: File] }>()
 
+interface SampleInvoice {
+  file: string
+  name: string
+  label: string
+  description: string
+}
+
+// Mirrors tests/fixtures/README.md -- each of these is a real fixture the
+// test suite already asserts specific findings against, surfaced here so a
+// visitor can see the tool catch something without bringing their own PDF.
+// Shown as an always-visible row rather than a menu: a dropdown here would
+// hide the samples behind a click on the very screen meant to onboard a
+// first-time visitor, and a floating panel anchored to a button inside a
+// vertically-centered card has nowhere reliable to open without overlapping
+// something.
+const samples: SampleInvoice[] = [
+  {
+    file: '/beispielrechnung.pdf',
+    name: 'beispielrechnung.pdf',
+    label: 'Fehlerfrei',
+    description: 'Fehlerfreie Rechnung -- alle Prüfungen bestehen (gemischte Steuersätze 20 %/10 %)',
+  },
+  {
+    file: '/beispielrechnung-fehler.pdf',
+    name: 'beispielrechnung-fehler.pdf',
+    label: 'Mit Fehlern',
+    description: 'Rechnung mit Fehlern -- Rechenfehler bei einer Position und PDF/XML-Abweichung beim Bruttobetrag',
+  },
+  {
+    file: '/beispielrechnung-iban.pdf',
+    name: 'beispielrechnung-iban.pdf',
+    label: 'Ungültige IBAN',
+    description: 'Rechnung mit ungültiger IBAN -- Prüfsumme fehlerhaft, im PDF auffindbar und markierbar',
+  },
+  {
+    file: '/beispielrechnung-mehrseitig.pdf',
+    name: 'beispielrechnung-mehrseitig.pdf',
+    label: 'Mehrseitig',
+    description: 'Mehrseitige Rechnung -- zwei Seiten, Beträge stehen erst auf Seite 2',
+  },
+]
+
 const fileInput = ref<HTMLInputElement | null>(null)
-const loadingSample = ref(false)
+const loadingSample = ref<string | null>(null)
 const { isDragging, onDragEnter, onDragLeave, onDrop } = useFileDrop((file) => emit('select', file))
 
 function onFileInputChange(event: Event) {
@@ -24,14 +66,14 @@ function openFilePicker() {
 // Gives immediate feedback on click -- otherwise the button sits idle
 // during the fetch, before store.loading even exists to show its own
 // spinner, and a click can look like it did nothing.
-async function loadSample() {
-  loadingSample.value = true
+async function loadSample(sample: SampleInvoice) {
+  loadingSample.value = sample.name
   try {
-    const response = await fetch('/beispielrechnung.pdf')
+    const response = await fetch(sample.file)
     const blob = await response.blob()
-    emit('select', new File([blob], 'beispielrechnung.pdf', { type: 'application/pdf' }))
+    emit('select', new File([blob], sample.name, { type: 'application/pdf' }))
   } finally {
-    loadingSample.value = false
+    loadingSample.value = null
   }
 }
 </script>
@@ -55,8 +97,21 @@ async function loadSample() {
       class="sr-only"
       @change="onFileInputChange"
     />
-    <Button variant="ghost" :disabled="loadingSample" @click="loadSample">
-      {{ loadingSample ? 'Wird geladen …' : 'Beispielrechnung laden' }}
-    </Button>
+    <div class="flex flex-col items-center gap-2">
+      <p class="text-xs text-muted">oder Beispielrechnung laden</p>
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <Button
+          v-for="sample in samples"
+          :key="sample.name"
+          variant="ghost"
+          class="rounded-full border border-border px-3 py-1 text-xs"
+          :title="sample.description"
+          :disabled="loadingSample !== null"
+          @click="loadSample(sample)"
+        >
+          {{ loadingSample === sample.name ? 'Lädt …' : sample.label }}
+        </Button>
+      </div>
+    </div>
   </div>
 </template>
