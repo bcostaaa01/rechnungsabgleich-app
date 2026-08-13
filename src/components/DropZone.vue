@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Button } from '@rechnungsabgleich/design-system'
-import { Upload } from '@lucide/vue'
+import { TriangleAlert, Upload } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 
 const emit = defineEmits<{ select: [file: File] }>()
@@ -79,6 +79,13 @@ async function loadSample(sample: SampleInvoice) {
 </script>
 
 <template>
+  <div class="mb-4 flex items-start gap-2 rounded-lg bg-warning/10 p-3 text-xs text-warning sm:hidden">
+    <TriangleAlert :size="14" class="mt-0.5 shrink-0" aria-hidden="true" />
+    <p>
+      Diese Anwendung wurde für die Desktop-Nutzung entwickelt. Auf manchen mobilen Browsern
+      (v. a. älteren iPhones) kann das Laden von PDFs derzeit fehlschlagen.
+    </p>
+  </div>
   <div
     class="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-12 text-center transition-colors"
     :class="isDragging ? 'border-ink bg-border/20' : 'border-border'"
