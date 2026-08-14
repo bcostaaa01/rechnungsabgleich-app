@@ -12,11 +12,13 @@ e-invoices (ZUGFeRD / Factur-X). Loads a PDF client-side, extracts the
 embedded CII XML, cross-checks arithmetic and PDF-vs-XML consistency.
 Portfolio piece targeting reebuild GmbH (Wien).
 
-**No backend. No database. No auth. No file persistence.** Everything runs
-in the browser. Static deploy only (Vercel/Netlify). If a task seems to need
-a server, it's out of scope — check `SPEC.md` §1 before adding one. (The
-`packages/design-system` Storybook instance is a dev-time tool the running
-app never talks to at runtime — it doesn't count as a backend.)
+**No backend. No database. No auth.** Everything runs in the browser. Static
+deploy only (Vercel/Netlify). If a task seems to need a server, it's out of
+scope — check `SPEC.md` §1 before adding one. (The `packages/design-system`
+Storybook instance is a dev-time tool the running app never talks to at
+runtime — it doesn't count as a backend.) One narrow, documented exception
+to "no file persistence": review decisions are cached in `localStorage` —
+see the Tech stack section below.
 
 ## Tech stack
 
@@ -27,6 +29,18 @@ big.js · Tailwind CSS v4 · Vitest · ESLint + Prettier · GitHub Actions CI.
 Note: `SPEC.md` §2 says "Router: No" — the actual project deviates and
 includes Vue Router (decided during setup, not in the original spec). Keep
 this in mind when `SPEC.md` and reality disagree on this one point.
+
+Note: `SPEC.md` §1 lists "no file persistence" and "no multi-invoice
+management" as explicitly out of scope. The project deviates narrowly, for
+review decisions only: accept/flag/note per position is cached in
+`localStorage`, keyed by a hash of the invoice's embedded XML
+(`src/stores/reviewPersistence.ts`), so reloading the *same* invoice — this
+session or a later one — restores prior decisions. This adds no backend, no
+database, no invoice list/dashboard, and no general file persistence; it's
+a client-side convenience scoped to one store's state. Marked as WIP in the
+UI (the header badge in `HomeView.vue`) and in README's "Known
+limitations" — it's a PoC-quality addition (no storage cap/eviction, a
+non-cryptographic hash), not a finished feature.
 
 Do not introduce a different framework, UI kit, or state library without
 asking — the stack is otherwise deliberately narrow (see `SPEC.md` §2).

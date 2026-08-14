@@ -38,12 +38,12 @@ const { isOpen: resetConfirmOpen, guardedReset, cancel: cancelReset, confirm: co
     <Modal v-if="resetConfirmOpen" v-slot="{ titleId }" @close="cancelReset()">
       <h2 :id="titleId" class="font-semibold text-ink">Rechnung verlassen?</h2>
       <p class="mt-2 text-muted">
-        Ihre Prüfentscheidungen (akzeptierte und markierte Positionen) für diese Rechnung gehen
-        verloren.
+        Ihre Prüfentscheidungen (akzeptierte und markierte Positionen) werden lokal in diesem
+        Browser gespeichert und wiederhergestellt, sobald Sie dieselbe Rechnung erneut laden.
       </p>
       <div class="mt-4 flex justify-end gap-2">
         <Button variant="secondary" @click="cancelReset()">Abbrechen</Button>
-        <Button variant="primary" @click="confirmReset()">Verwerfen</Button>
+        <Button variant="primary" @click="confirmReset()">Fortfahren</Button>
       </div>
     </Modal>
   </div>

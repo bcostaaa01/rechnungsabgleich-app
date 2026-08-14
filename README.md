@@ -86,7 +86,9 @@ at.
 full keyboard navigation (`j`/`k`/`a`/`f`/`?`), and export the reviewed
 result as a **Korrekturblatt** (CSV or JSON) — invoice metadata, header-level
 findings, and one row per position with its status, note, and findings
-attached.
+attached. Decisions are also cached locally per invoice (`localStorage`,
+WIP — see *Known limitations*), so reloading the same invoice later
+restores where you left off.
 
 **Everything else expected of a real tool** — dark mode (follows OS
 preference, overridable, no flash of the wrong theme), per-step loading
@@ -106,9 +108,12 @@ page explaining the domain, the rule catalogue, and known limitations.
 This is a portfolio piece, not a product, and the scope discipline is
 deliberate:
 
-- No backend, database, auth, or file persistence — everything runs in the
-  browser, static deploy only.
-- No multi-invoice management, dashboard, or cost tracking.
+- No backend, database, or auth — everything runs in the browser, static
+  deploy only. One narrow, WIP exception: review decisions are cached in
+  `localStorage` per invoice — see *Known limitations*.
+- No dashboard or cost tracking, and still no multi-invoice *list* — but
+  review decisions now survive a reload for a given invoice, which is a
+  deliberate, narrow deviation from the original "no persistence" scope.
 - No AI/LLM extraction — this reads *structured* data; guessing from a PDF
   render is a different problem.
 - No three-way match against orders or delivery notes.
@@ -173,6 +178,17 @@ Stated plainly rather than hidden:
   accounting documents conventionally use a *trailing* minus for
   Gutschriften. Documented, not fixed, pending a real negative-amount PDF
   fixture to verify against.
+- **Review-decision persistence is WIP**, flagged as such in the UI (the
+  "Lokal gespeichert · WIP" badge in the header). Accept/flag/note decisions
+  are saved to `localStorage`, keyed by a non-cryptographic hash (FNV-1a) of
+  the invoice's embedded XML, and restored automatically when the same
+  invoice is loaded again — including in a later session
+  (`src/stores/reviewPersistence.ts`). This is a deliberate, narrow
+  deviation from the original "no file persistence, no multi-invoice
+  management" scope (see `CLAUDE.md`), scoped to review state only: still no
+  backend, no invoice list/dashboard, no export/import of the saved data, no
+  storage cap or eviction, and — at real (not demo) scale — a theoretical
+  32-bit hash collision could surface another invoice's saved decisions.
 
 ## Tech stack
 

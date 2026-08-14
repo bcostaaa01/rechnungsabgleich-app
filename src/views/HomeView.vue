@@ -13,7 +13,7 @@ import ExportMenu from '@/components/ExportMenu.vue'
 import ShortcutOverlay from '@/components/ShortcutOverlay.vue'
 import LoadingSteps from '@/components/LoadingSteps.vue'
 import { Badge, Button, Tooltip } from '@rechnungsabgleich/design-system'
-import { AlertCircle, Keyboard, RotateCcw } from '@lucide/vue'
+import { AlertCircle, Keyboard, RotateCcw, Save } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 import { useResetConfirm } from '@/composables/useResetConfirm'
 
@@ -106,6 +106,15 @@ const {
         <span>{{ store.invoice.seller.name }}</span>
       </span>
       <Badge tone="neutral">{{ store.invoice.profile }}</Badge>
+      <Tooltip
+        label="Prüfentscheidungen werden lokal in diesem Browser gespeichert und beim erneuten Laden dieser Rechnung wiederhergestellt. Experimentell, noch in Arbeit."
+        placement="bottom"
+      >
+        <Badge tone="neutral" class="gap-1">
+          <Save :size="12" aria-hidden="true" />
+          Lokal gespeichert · WIP
+        </Badge>
+      </Tooltip>
       <span v-if="store.invoice.iban" class="whitespace-nowrap text-muted">
         IBAN <span class="num text-ink">{{ formatIban(store.invoice.iban) }}</span>
       </span>

@@ -10,6 +10,7 @@ import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
 import { getDocumentTextLayers, layersToPlainText, type PositionedTextItem } from '@/pdf/textLayer'
 import { useReviewStore } from '@/stores/review'
+import { hashXml } from '@/stores/reviewPersistence'
 
 // SPEC.md §6: default ±0,01, user-adjustable in the UI eventually -- no
 // such control exists yet, so this stays a fixed constant for now.
@@ -80,6 +81,11 @@ export const useInvoiceStore = defineStore('invoice', () => {
 
       loadingStep.value = 'parse'
       const parsedInvoice = parseCiiXml(attachment.xml)
+      const invoiceKey = hashXml(attachment.xml)
+      const reviewMeta = { invoiceNumber: parsedInvoice.invoiceNumber, sellerName: parsedInvoice.seller.name }
+      // Restore any decisions saved for this exact invoice content (WIP,
+      // localStorage-backed -- see stores/reviewPersistence.ts).
+      useReviewStore().hydrate(invoiceKey, reviewMeta)
 
       loadingStep.value = 'pdf-text'
       const layers = await getDocumentTextLayers(loadedDoc)

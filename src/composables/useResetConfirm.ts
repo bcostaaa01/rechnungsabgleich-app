@@ -10,9 +10,12 @@ import { useReviewStore } from '@/stores/review'
 const isOpen = ref(false)
 
 export function useResetConfirm() {
-  // Only interrupt when there's something to lose -- a fresh or
+  // Only interrupt when there's something to leave behind -- a fresh or
   // already-empty invoice has no review decisions, so reset immediately
-  // rather than prompting for nothing.
+  // rather than prompting for nothing. Decisions are persisted locally
+  // (stores/reviewPersistence.ts) so nothing is actually lost, but the
+  // confirmation still gives the reviewer a moment to notice they're
+  // switching invoices mid-review.
   function guardedReset() {
     const review = useReviewStore()
     if (Object.keys(review.decisions).length > 0) {
