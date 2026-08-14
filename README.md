@@ -211,6 +211,15 @@ Stated plainly rather than hidden:
 
 ## Tech stack
 
+[![Vue 3](https://img.shields.io/badge/Vue_3-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Pinia](https://img.shields.io/badge/Pinia-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_CSS_v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Vitest](https://img.shields.io/badge/Vitest-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev)
+[![ESLint](https://img.shields.io/badge/ESLint-4B32C3?logo=eslint&logoColor=white)](https://eslint.org)
+[![pdf.js](https://img.shields.io/badge/pdf.js-B0413E)](https://mozilla.github.io/pdf.js/)
+
 Vue 3 (`<script setup>`) · TypeScript (`strict: true`) · Vite · Vue Router ·
 Pinia · pdfjs-dist · fast-xml-parser · big.js · Tailwind CSS v4 · Vitest ·
 ESLint + Prettier · GitHub Actions CI.
