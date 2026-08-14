@@ -16,9 +16,10 @@ Portfolio piece targeting reebuild GmbH (Wien).
 deploy only (Vercel/Netlify). If a task seems to need a server, it's out of
 scope — check `SPEC.md` §1 before adding one. (The `packages/design-system`
 Storybook instance is a dev-time tool the running app never talks to at
-runtime — it doesn't count as a backend.) One narrow, documented exception
-to "no file persistence": review decisions are cached in `localStorage` —
-see the Tech stack section below.
+runtime — it doesn't count as a backend.) Two narrow, documented exceptions
+to "no file persistence" — review decisions in `localStorage`, and now the
+invoice PDFs themselves in `IndexedDB` — see the Tech stack section below.
+Nothing leaves the browser; this is still 100% client-side.
 
 ## Tech stack
 
@@ -41,6 +42,21 @@ a client-side convenience scoped to one store's state. Marked as WIP in the
 UI (the header badge in `HomeView.vue`) and in README's "Known
 limitations" — it's a PoC-quality addition (no storage cap/eviction, a
 non-cryptographic hash), not a finished feature.
+
+Note: on top of the above, the project *also* caches the invoice PDF itself
+(not just its review metadata) so a previously-worked-on invoice can be
+reopened into the live preview, not just summarised. This is the bigger of
+the two deviations — it's the actual document, which is exactly what "no
+file persistence" was written to rule out — so it's kept deliberately
+separate: `src/stores/invoiceFilePersistence.ts` is a raw `IndexedDB`
+wrapper (localStorage can't hold `Blob`/`File` data at any useful size),
+same `hashXml` key as the decisions cache but its own store, its own
+lifecycle, its own delete action. Surfaced via a persistent left-edge rail
+(`App.vue`) that opens `SavedInvoicesSidebar.vue` — deliberately placed
+adjacent to where the panel itself opens, not tucked into the top-right
+utility row, since a trigger and the thing it triggers should be next to
+each other. Same WIP framing as the decisions cache; same "PoC, not
+finished" caveats (no cap/eviction on the file cache either).
 
 Do not introduce a different framework, UI kit, or state library without
 asking — the stack is otherwise deliberately narrow (see `SPEC.md` §2).

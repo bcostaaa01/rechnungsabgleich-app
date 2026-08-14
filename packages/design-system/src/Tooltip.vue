@@ -6,8 +6,9 @@ withDefaults(
     // 'end' anchors the bubble's right edge to the trigger's right edge
     // instead of centering -- needed for triggers flush against the
     // viewport's right edge (e.g. the theme toggle), where a centered
-    // bubble would run off-screen.
-    align?: 'center' | 'end'
+    // bubble would run off-screen. 'start' is the mirror image, for
+    // triggers flush against the left edge (e.g. the saved-invoices rail).
+    align?: 'center' | 'end' | 'start'
   }>(),
   { placement: 'top', align: 'center' },
 )
@@ -27,6 +28,7 @@ withDefaults(
         'top-full mt-2': placement === 'bottom',
         'left-1/2 -translate-x-1/2': align === 'center',
         'right-0': align === 'end',
+        'left-0': align === 'start',
       }"
     >
       {{ label }}

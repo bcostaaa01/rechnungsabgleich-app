@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
-import { Info } from '@lucide/vue'
+import { History, Info } from '@lucide/vue'
 import { Analytics } from '@vercel/analytics/vue'
-import { Button, Modal } from '@rechnungsabgleich/design-system'
+import { Button, Modal, Tooltip } from '@rechnungsabgleich/design-system'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import SavedInvoicesSidebar from '@/components/SavedInvoicesSidebar.vue'
 import { useResetConfirm } from '@/composables/useResetConfirm'
 
 const { isOpen: resetConfirmOpen, guardedReset, cancel: cancelReset, confirm: confirmReset } = useResetConfirm()
+const savedSidebarOpen = ref(false)
 </script>
 
 <template>
@@ -31,8 +34,30 @@ const { isOpen: resetConfirmOpen, guardedReset, cancel: cancelReset, confirm: co
         <ThemeToggle />
       </div>
     </div>
-    <div class="min-h-0 flex-1">
-      <RouterView />
+    <div class="flex min-h-0 flex-1">
+      <!-- A persistent rail directly on the edge the sidebar opens from,
+           not a button somewhere else on the page -- the trigger and the
+           thing it triggers should be adjacent. -->
+      <div class="flex w-10 shrink-0 flex-col items-center border-r border-border py-2">
+        <Tooltip label="Gespeicherte Rechnungen" placement="bottom" align="start">
+          <button
+            type="button"
+            class="rounded-lg p-2 transition-colors hover:bg-border/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            :class="savedSidebarOpen ? 'bg-border/60 text-ink' : 'text-muted hover:text-ink'"
+            :aria-pressed="savedSidebarOpen"
+            aria-label="Gespeicherte Rechnungen"
+            @click="savedSidebarOpen = !savedSidebarOpen"
+          >
+            <History :size="16" aria-hidden="true" />
+          </button>
+        </Tooltip>
+      </div>
+      <Transition name="sidebar-slide">
+        <SavedInvoicesSidebar v-if="savedSidebarOpen" @close="savedSidebarOpen = false" />
+      </Transition>
+      <div class="min-h-0 flex-1">
+        <RouterView />
+      </div>
     </div>
 
     <Modal v-if="resetConfirmOpen" v-slot="{ titleId }" @close="cancelReset()">
@@ -48,3 +73,23 @@ const { isOpen: resetConfirmOpen, guardedReset, cancel: cancelReset, confirm: co
     </Modal>
   </div>
 </template>
+
+<style scoped>
+/* Quick slide + fade, not a decorative flourish -- prefers-reduced-motion
+   collapses the duration globally (src/assets/base.css), so this stays
+   inert for anyone who's opted out. Only the sidebar's own appearance
+   animates; the rail next to it (the trigger) never moves, so the panel
+   always opens right where its trigger is. */
+.sidebar-slide-enter-active,
+.sidebar-slide-leave-active {
+  transition:
+    transform 120ms ease-out,
+    opacity 120ms ease-out;
+}
+
+.sidebar-slide-enter-from,
+.sidebar-slide-leave-to {
+  transform: translateX(-12px);
+  opacity: 0;
+}
+</style>

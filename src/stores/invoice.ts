@@ -11,6 +11,7 @@ import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
 import { getDocumentTextLayers, layersToPlainText, type PositionedTextItem } from '@/pdf/textLayer'
 import { useReviewStore } from '@/stores/review'
 import { hashXml } from '@/stores/reviewPersistence'
+import { loadInvoiceFile, saveInvoiceFile } from '@/stores/invoiceFilePersistence'
 
 // SPEC.md §6: default ±0,01, user-adjustable in the UI eventually -- no
 // such control exists yet, so this stays a fixed constant for now.
@@ -96,12 +97,33 @@ export const useInvoiceStore = defineStore('invoice', () => {
       textLayers.value = layers
       invoice.value = parsedInvoice
       findings.value = runChecks(parsedInvoice, { tolerance: DEFAULT_TOLERANCE, pdfText })
+
+      // Cache the PDF itself (tier 2, WIP -- see stores/invoiceFilePersistence.ts)
+      // only once the whole pipeline succeeded, so a file that fails to
+      // parse or check never ends up reopenable from the sidebar. Fire-and-
+      // forget: this is a best-effort convenience cache, not part of the
+      // load the user is waiting on.
+      void saveInvoiceFile(invoiceKey, file, reviewMeta)
     } catch (caught) {
       error.value = caught instanceof Error ? caught.message : String(caught)
     } finally {
       loading.value = false
       loadingStep.value = null
     }
+  }
+
+  // Reopens a previously worked-on invoice from the tier-2 file cache
+  // (see SavedInvoicesSidebar.vue). Reuses loadFromFile wholesale -- once
+  // the stored bytes are back as a File, "reopening" is just "loading",
+  // including re-parsing, re-running checks, and re-hydrating review
+  // decisions from tier 1.
+  async function loadFromSavedKey(key: string) {
+    const file = await loadInvoiceFile(key)
+    if (!file) {
+      error.value = 'Diese gespeicherte Rechnung konnte nicht gefunden werden.'
+      return
+    }
+    await loadFromFile(file)
   }
 
   function reset() {
@@ -128,6 +150,7 @@ export const useInvoiceStore = defineStore('invoice', () => {
     loading,
     loadingStep,
     loadFromFile,
+    loadFromSavedKey,
     reset,
   }
 })
