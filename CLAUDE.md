@@ -90,7 +90,11 @@ is a pure factory (Node-testable, same rule as `src/core/`) and
 stores, in the spirit of `composables/useResetConfirm.ts`. Mutating tools
 (`set_review_decision`, `accept_all_positions`) carry `readOnlyHint: false`
 so the agent host gates them behind user confirmation. Documented in
-README's "Known limitations".
+README's "Known limitations". In dev builds only, `useAgentTools()` also
+hangs the tools off `window.__agentTools` (e.g.
+`await window.__agentTools.list_findings({})`) so they can be exercised
+without a WebMCP-capable browser; `import.meta.env.DEV` strips this from
+production.
 
 Do not introduce a different framework, UI kit, or state library without
 asking — the stack is otherwise deliberately narrow (see `SPEC.md` §2).

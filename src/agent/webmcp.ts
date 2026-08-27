@@ -28,4 +28,10 @@ declare global {
   interface Navigator {
     readonly modelContext?: WebMcpContext
   }
+  interface Window {
+    // Dev-only console handle installed by useAgentTools() when
+    // import.meta.env.DEV is set: `await window.__agentTools.list_findings({})`.
+    // Lets the tools be exercised without a WebMCP-capable browser.
+    __agentTools?: Record<string, (args?: Record<string, unknown>) => Promise<unknown>>
+  }
 }

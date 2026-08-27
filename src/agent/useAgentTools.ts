@@ -53,13 +53,33 @@ export function useAgentTools(options: UseAgentToolsOptions = {}): void {
   }
 
   onMounted(() => {
+    const tools = createInvoiceTools(deps)
+
     const context = navigator.modelContext
-    if (!context) return
-    controller = new AbortController()
-    for (const tool of createInvoiceTools(deps)) {
-      context.registerTool(tool, { signal: controller.signal })
+    if (context) {
+      controller = new AbortController()
+      for (const tool of tools) {
+        context.registerTool(tool, { signal: controller.signal })
+      }
+    }
+
+    // Dev-only: a console handle so the same tools can be driven without a
+    // WebMCP host, e.g. `await window.__agentTools.focus_finding({ ruleId:
+    // 'R-VAT-02' })`. Stripped from production builds.
+    if (import.meta.env.DEV) {
+      const handles: NonNullable<Window['__agentTools']> = {}
+      for (const tool of tools) {
+        handles[tool.name] = async (args = {}) => {
+          const result = await tool.execute(args)
+          return JSON.parse(result.content[0]!.text)
+        }
+      }
+      window.__agentTools = handles
     }
   })
 
-  onUnmounted(() => controller?.abort())
+  onUnmounted(() => {
+    controller?.abort()
+    if (import.meta.env.DEV) delete window.__agentTools
+  })
 }
