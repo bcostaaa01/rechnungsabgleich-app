@@ -248,6 +248,16 @@ Stated plainly rather than hidden:
   search/sort/pagination on top. Deleting an entry only removes the cached
   file, not its review decisions (the two caches are independent by
   design).
+- **WebMCP agent tools** (`src/agent/`), experimental and opt-in: the
+  review view registers a few actions — list findings/positions, focus a
+  finding in the PDF gutter, set an accept/flag decision, export the
+  Korrekturblatt — as [WebMCP](https://github.com/webmachinelearning/webmcp)
+  tools on `navigator.modelContext`, so a browser AI agent can run a review
+  through the same store actions a person uses. Only active in Chrome 146+
+  with the WebMCP flag; a no-op in every other browser. No backend, no new
+  dependency, still entirely client-side. `list_findings` returns text
+  derived from invoice content, so the mutating tools are marked
+  non-read-only for the agent host to confirm before running them.
 
 ## Tech stack
 
