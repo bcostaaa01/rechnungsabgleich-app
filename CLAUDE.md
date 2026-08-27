@@ -77,6 +77,25 @@ recently updated files, oldest evicted first), documented in README's
 "Known limitations" alongside its other, permanent scope boundaries (no
 export/import, delete-independence from the decisions cache).
 
+Note: `src/agent/` registers a handful of this app's review actions (list
+findings/positions, focus a finding in the gutter, set an accept/flag
+decision, export the Korrekturblatt) as **WebMCP tools** via
+`navigator.modelContext`, so a browser AI agent can drive the same review
+a person would. Experimental and opt-in: `navigator.modelContext` only
+exists in Chrome 146+ behind a flag, and `useAgentTools()` is a no-op
+everywhere else. This is not a "no backend" deviation — nothing leaves the
+browser, no server, no new dependency, no third store. `src/agent/tools.ts`
+is a pure factory (Node-testable, same rule as `src/core/`) and
+`src/agent/useAgentTools.ts` is a thin composable over the two existing
+stores, in the spirit of `composables/useResetConfirm.ts`. Mutating tools
+(`set_review_decision`, `accept_all_positions`) carry `readOnlyHint: false`
+so the agent host gates them behind user confirmation. Documented in
+README's "Known limitations". In dev builds only, `useAgentTools()` also
+hangs the tools off `window.__agentTools` (e.g.
+`await window.__agentTools.list_findings({})`) so they can be exercised
+without a WebMCP-capable browser; `import.meta.env.DEV` strips this from
+production.
+
 Do not introduce a different framework, UI kit, or state library without
 asking — the stack is otherwise deliberately narrow (see `SPEC.md` §2).
 

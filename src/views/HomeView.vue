@@ -16,6 +16,7 @@ import { Badge, Button, Tooltip } from '@rechnungsabgleich/design-system'
 import { AlertCircle, Keyboard, RotateCcw, Save } from '@lucide/vue'
 import { useFileDrop } from '@/composables/useFileDrop'
 import { useResetConfirm } from '@/composables/useResetConfirm'
+import { useAgentTools } from '@/agent/useAgentTools'
 
 const store = useInvoiceStore()
 const review = useReviewStore()
@@ -24,6 +25,12 @@ const activeTab = ref<'positionen' | 'pruefung'>('positionen')
 const positionenTabRef = ref<HTMLButtonElement | null>(null)
 const pruefungTabRef = ref<HTMLButtonElement | null>(null)
 const showShortcuts = ref(false)
+
+// Registers the review actions as WebMCP tools while this view is mounted;
+// a no-op unless the browser exposes navigator.modelContext (Chrome 146+
+// with the flag). onShowPosition keeps the agent path at parity with
+// FindingList.vue's @show-position for line-targeted findings.
+useAgentTools({ onShowPosition: () => (activeTab.value = 'positionen') })
 
 const errorCount = computed(() => store.findings.filter((f) => f.severity === 'error').length)
 const lineIds = computed(() => store.invoice?.lines.map((line) => line.lineId) ?? [])
