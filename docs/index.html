@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>zugferd-validator — docs</title>
 <meta name="description" content="Parse and validate ZUGFeRD/Factur-X e-invoices: profile detection, EN 16931 arithmetic checks, IBAN validation. Framework-free TypeScript, no DOM dependency." />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
 <style>
   :root {
     --bg: #ffffff;
@@ -47,6 +48,19 @@
   code, pre, kbd {
     font-family: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
     font-size: 0.88em;
+  }
+  .icon {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+    vertical-align: -0.15em;
+    flex-shrink: 0;
+  }
+  a .icon { vertical-align: -0.125em; }
+  .hero-inner p a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
   }
   code {
     background: var(--bg-alt);
@@ -108,12 +122,16 @@
     overflow-y: auto;
   }
   nav.toc h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--muted);
     margin: 1.3rem 0 0.5rem;
   }
+  nav.toc h2 .icon { width: 0.95em; height: 0.95em; }
   nav.toc h2:first-child { margin-top: 0; }
   nav.toc ul { list-style: none; margin: 0; padding: 0; }
   nav.toc li { margin: 0.15rem 0; }
@@ -203,9 +221,24 @@
 <header class="hero">
   <div class="hero-inner">
     <div class="badges">
-      <span class="badge">MIT license</span>
-      <span class="badge">TypeScript, strict</span>
-      <span class="badge">0 DOM dependencies</span>
+      <span class="badge">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v18" /><path d="m19 8 3 8a5 5 0 0 1-6 0zV7" /><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1" /><path d="m5 8 3 8a5 5 0 0 1-6 0zV7" /><path d="M7 21h10" />
+        </svg>
+        MIT license
+      </span>
+      <span class="badge">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1" /><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1" />
+        </svg>
+        TypeScript, strict
+      </span>
+      <span class="badge">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" />
+        </svg>
+        0 DOM dependencies
+      </span>
     </div>
     <h1>zugferd-validator</h1>
     <p class="tagline">
@@ -215,8 +248,18 @@
     </p>
     <pre class="install"><code>npm install zugferd-validator</code></pre>
     <p>
-      <a href="https://www.npmjs.com/package/zugferd-validator">npm</a> ·
-      <a href="https://github.com/bcostaaa01/rechnungsabgleich-app/tree/main/packages/zugferd-validator">source</a> ·
+      <a href="https://www.npmjs.com/package/zugferd-validator">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" /><path d="M12 22V12" /><polyline points="3.29 7 12 12 20.71 7" /><path d="m7.5 4.27 9 5.15" />
+        </svg>
+        npm
+      </a> ·
+      <a href="https://github.com/bcostaaa01/rechnungsabgleich-app/tree/main/packages/zugferd-validator">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m18 16 4-4-4-4" /><path d="m6 8-4 4 4 4" /><path d="m14.5 4-5 16" />
+        </svg>
+        source
+      </a> ·
       extracted from <a href="https://github.com/bcostaaa01/rechnungsabgleich-app">rechnungsabgleich</a>,
       a browser-based ZUGFeRD/Factur-X reviewer this package is the engine behind
     </p>
@@ -225,29 +268,54 @@
 
 <div class="layout">
   <nav class="toc" aria-label="Table of contents">
-    <h2>Guide</h2>
+    <h2>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" />
+      </svg>
+      Guide
+    </h2>
     <ul>
       <li><a href="#usage">Usage</a></li>
       <li><a href="#rules">Rule catalogue</a></li>
       <li><a href="#limitations">Known limitations</a></li>
     </ul>
-    <h2>API — parsing</h2>
+    <h2>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /><path d="M14 2v5a1 1 0 0 0 1 1h5" /><path d="M10 12.5 8 15l2 2.5" /><path d="m14 12.5 2 2.5-2 2.5" />
+      </svg>
+      API — parsing
+    </h2>
     <ul>
       <li><a href="#parseCiiXml">parseCiiXml</a></li>
       <li><a href="#detectProfile">detectProfile</a></li>
       <li><a href="#unitLabel">unitLabel</a></li>
     </ul>
-    <h2>API — checks</h2>
+    <h2>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M13 5h8" /><path d="M13 12h8" /><path d="M13 19h8" /><path d="m3 17 2 2 4-4" /><path d="m3 7 2 2 4-4" />
+      </svg>
+      API — checks
+    </h2>
     <ul>
       <li><a href="#runChecks">runChecks</a></li>
       <li><a href="#rules-export">rules</a></li>
       <li><a href="#types-checks">Finding, Severity, CheckContext, Rule</a></li>
     </ul>
-    <h2>API — domain types</h2>
+    <h2>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" /><path d="m3.3 7 8.7 5 8.7-5" /><path d="M12 22V12" />
+      </svg>
+      API — domain types
+    </h2>
     <ul>
       <li><a href="#types-domain">Invoice and friends</a></li>
     </ul>
-    <h2>API — money &amp; IBAN</h2>
+    <h2>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" />
+      </svg>
+      API — money &amp; IBAN
+    </h2>
     <ul>
       <li><a href="#money">Money helpers</a></li>
       <li><a href="#iban">isValidIban, formatIban</a></li>
