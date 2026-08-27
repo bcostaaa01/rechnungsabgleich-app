@@ -133,8 +133,7 @@ async function remove(entry: SavedInvoiceEntry, event: Event) {
     </div>
 
     <p class="border-t border-border px-3 py-2 text-xs text-muted">
-      Experimentell (WIP): Rechnungen werden nur lokal in diesem Browser gespeichert, nicht
-      übertragen.
+      Rechnungen werden nur lokal in diesem Browser gespeichert, nicht übertragen.
     </p>
   </div>
 </template>

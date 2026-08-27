@@ -87,11 +87,12 @@ full keyboard navigation (`j`/`k`/`a`/`f`/`?`), and export the reviewed
 result as a **Korrekturblatt** (CSV or JSON) — invoice metadata, header-level
 findings, and one row per position with its status, note, and findings
 attached. Decisions are also cached locally per invoice (`localStorage`,
-WIP — see *Known limitations*), so reloading the same invoice later
-restores where you left off. Worked-on invoices are listed in a "Gespeicherte
-Rechnungen" sidebar (the icon rail on the far left) — click one to reopen the
-full PDF-and-positions preview exactly as you left it, not just a summary
-(also WIP, see *Known limitations*).
+capped and evicted oldest-first — see *Known limitations*), so reloading
+the same invoice later restores where you left off. Worked-on invoices are
+listed in a "Gespeicherte Rechnungen" sidebar (the icon rail on the far
+left) — click one to reopen the full PDF-and-positions preview exactly as
+you left it, not just a summary (see *Known limitations* for how that
+cache is bounded).
 
 **Everything else expected of a real tool** — dark mode (follows OS
 preference, overridable, no flash of the wrong theme), per-step loading
@@ -112,10 +113,10 @@ This is a portfolio piece, not a product, and the scope discipline is
 deliberate:
 
 - No backend, database, or auth — everything runs in the browser, static
-  deploy only, nothing is transmitted anywhere. Two narrow, WIP exceptions:
+  deploy only, nothing is transmitted anywhere. Two narrow exceptions:
   review decisions are cached in `localStorage`, and worked-on invoice PDFs
-  are cached in `IndexedDB`, both per invoice, both local to the browser —
-  see *Known limitations*.
+  are cached in `IndexedDB`, both per invoice, both local to the browser,
+  both capped — see *Known limitations*.
 - No cost tracking, and no *project/dashboard* view — but there is now a
   small sidebar listing invoices you've worked on, letting you reopen one
   into the live preview. That's a deliberate, narrow deviation from the
@@ -186,26 +187,27 @@ Stated plainly rather than hidden:
   accounting documents conventionally use a *trailing* minus for
   Gutschriften. Documented, not fixed, pending a real negative-amount PDF
   fixture to verify against.
-- **Review-decision persistence is WIP**, flagged as such in the UI (the
-  "Lokal gespeichert · WIP" badge in the header). Accept/flag/note decisions
-  are saved to `localStorage`, keyed by a non-cryptographic hash (FNV-1a) of
-  the invoice's embedded XML, and restored automatically when the same
-  invoice is loaded again — including in a later session
-  (`src/stores/reviewPersistence.ts`). This is a deliberate, narrow
-  deviation from the original "no file persistence, no multi-invoice
-  management" scope (see `CLAUDE.md`), scoped to review state only: still no
-  backend, no export/import of the saved data, no storage cap or eviction,
-  and — at real (not demo) scale — a theoretical 32-bit hash collision could
-  surface another invoice's saved decisions.
-- **Saved-invoice sidebar is WIP** too, and a bigger deviation than the
-  above: it caches the invoice **PDF itself** in `IndexedDB`
+- **Review-decision persistence** (the "Lokal gespeichert" badge in the
+  header). Accept/flag/note decisions are saved to `localStorage`, keyed by
+  a non-cryptographic hash (FNV-1a) of the invoice's embedded XML, and
+  restored automatically when the same invoice is loaded again — including
+  in a later session (`src/stores/reviewPersistence.ts`). This is a
+  deliberate, narrow deviation from the original "no file persistence, no
+  multi-invoice management" scope (see `CLAUDE.md`), scoped to review state
+  only: still no backend and no export/import of the saved data. Capped at
+  the 20 most recently updated invoices, oldest evicted first, so the cache
+  can't grow without bound — at that scale, the already-theoretical
+  32-bit (FNV-1a) hash collision risk is smaller still.
+- **Saved-invoice sidebar**, a bigger deviation than the above: it caches
+  the invoice **PDF itself** in `IndexedDB`
   (`src/stores/invoiceFilePersistence.ts`), not just review metadata, so a
   worked-on invoice can be reopened into the live preview instead of just
   summarised. Still no backend and nothing leaves the browser, but it *is*
   real file persistence — the thing `SPEC.md` explicitly says not to build.
-  Kept deliberately minimal: no search/sort/pagination on the list, no
-  storage cap or eviction (an aggressive tester could fill the browser's
-  quota with sample PDFs), and deleting an entry only removes the cached
+  Also capped at the 20 most recently updated invoices (oldest evicted
+  first) to bound how much of the browser's IndexedDB quota it can claim —
+  a list that short, already sorted newest-first, doesn't need
+  search/sort/pagination on top. Deleting an entry only removes the cached
   file, not its review decisions (the two caches are independent by
   design).
 

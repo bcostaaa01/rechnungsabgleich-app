@@ -107,12 +107,12 @@ const {
       </span>
       <Badge tone="neutral">{{ store.invoice.profile }}</Badge>
       <Tooltip
-        label="Prüfentscheidungen werden lokal in diesem Browser gespeichert und beim erneuten Laden dieser Rechnung wiederhergestellt. Experimentell, noch in Arbeit."
+        label="Prüfentscheidungen werden lokal in diesem Browser gespeichert und beim erneuten Laden dieser Rechnung wiederhergestellt."
         placement="bottom"
       >
         <Badge tone="neutral" class="gap-1">
           <Save :size="12" aria-hidden="true" />
-          Lokal gespeichert · WIP
+          Lokal gespeichert
         </Badge>
       </Tooltip>
       <span v-if="store.invoice.iban" class="whitespace-nowrap text-muted">

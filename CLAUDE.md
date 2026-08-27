@@ -38,10 +38,10 @@ review decisions only: accept/flag/note per position is cached in
 (`src/stores/reviewPersistence.ts`), so reloading the *same* invoice — this
 session or a later one — restores prior decisions. This adds no backend, no
 database, no invoice list/dashboard, and no general file persistence; it's
-a client-side convenience scoped to one store's state. Marked as WIP in the
-UI (the header badge in `HomeView.vue`) and in README's "Known
-limitations" — it's a PoC-quality addition (no storage cap/eviction, a
-non-cryptographic hash), not a finished feature.
+a client-side convenience scoped to one store's state. Capped at the 20
+most recently updated invoices (oldest evicted first) and documented in
+README's "Known limitations", including the remaining non-cryptographic
+hash caveat.
 
 Note: on top of the above, the project *also* caches the invoice PDF itself
 (not just its review metadata) so a previously-worked-on invoice can be
@@ -55,8 +55,10 @@ lifecycle, its own delete action. Surfaced via a persistent left-edge rail
 (`App.vue`) that opens `SavedInvoicesSidebar.vue` — deliberately placed
 adjacent to where the panel itself opens, not tucked into the top-right
 utility row, since a trigger and the thing it triggers should be next to
-each other. Same WIP framing as the decisions cache; same "PoC, not
-finished" caveats (no cap/eviction on the file cache either).
+each other. Same cap-and-evict treatment as the decisions cache (20 most
+recently updated files, oldest evicted first), documented in README's
+"Known limitations" alongside its other, permanent scope boundaries (no
+export/import, delete-independence from the decisions cache).
 
 Do not introduce a different framework, UI kit, or state library without
 asking — the stack is otherwise deliberately narrow (see `SPEC.md` §2).
