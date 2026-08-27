@@ -24,12 +24,29 @@ Nothing leaves the browser; this is still 100% client-side.
 ## Tech stack
 
 Vue 3 (`<script setup>`, Composition API) · TypeScript `strict: true` · Vite
-· Vue Router · Pinia (two stores max) · pdfjs-dist · fast-xml-parser ·
-big.js · Tailwind CSS v4 · Vitest · ESLint + Prettier · GitHub Actions CI.
+· Vue Router · Pinia (two stores max) · pdfjs-dist · `zugferd-validator`
+(this repo's own extracted parse/check engine — pulls in fast-xml-parser
+and big.js internally) · Tailwind CSS v4 · Vitest · ESLint + Prettier ·
+GitHub Actions CI.
 
 Note: `SPEC.md` §2 says "Router: No" — the actual project deviates and
 includes Vue Router (decided during setup, not in the original spec). Keep
 this in mind when `SPEC.md` and reality disagree on this one point.
+
+Note: the ZUGFeRD/Factur-X parsing and check-suite engine that used to live
+at `src/core/{money,iban,cii,checks}` has been extracted into its own
+published package, `packages/zugferd-validator` (published to npm as
+`zugferd-validator`, unscoped — not `@rechnungsabgleich/...`, since its
+whole point is to mean something to a company with no relationship to this
+app). The main app now depends on it like any other package
+(`"zugferd-validator": "*"` in root `package.json`, same workspace-protocol
+pattern as `@rechnungsabgleich/design-system`). This isn't a "no backend"
+scope deviation the way the persistence caches are — it's a static library,
+not a service; nothing about the app's runtime architecture changes.
+`src/core/` still exists, now holding only `review/` (the
+Korrekturblatt/CSV export logic) — app-specific review-workflow modeling
+that a generic ZUGFeRD-validation consumer wouldn't want, so it stayed
+behind rather than moving with the rest.
 
 Note: `SPEC.md` §1 lists "no file persistence" and "no multi-invoice
 management" as explicitly out of scope. The project deviates narrowly, for
@@ -71,24 +88,35 @@ tokens) the main app depends on via
 `packages/design-system/src/tokens.css` — edit them there, not in the
 main app's `src/assets/base.css` (which just imports them). See
 `DESIGN.md` at the repo root for the visual language itself.
+`packages/zugferd-validator` is the second workspace package — see the
+Tech stack note above — and is the only one of the two actually published
+externally; `design-system` stays `"private": true`, dev-tooling only.
 
 ## Non-negotiable architecture rule
 
-`src/core/` knows nothing about Vue, the DOM, or pdf.js. Pure TypeScript in,
-pure TypeScript out, fully unit-testable in Node. Everything uncertain or
-hard to test (rendering, file I/O, text-layer positioning) lives outside it,
-in `src/pdf/`, `src/stores/`, or `src/components/`.
+The parse/check engine (`packages/zugferd-validator/src/`) knows nothing
+about Vue, the DOM, or pdf.js. Pure TypeScript in, pure TypeScript out,
+fully unit-testable in Node — enforced by being a physically separate,
+independently-publishable package now, not just a convention. `src/core/`
+(now just `review/`) follows the same rule for the same reason, just
+without the packaging: everything uncertain or hard to test (rendering,
+file I/O, text-layer positioning) lives outside both, in `src/pdf/`,
+`src/stores/`, or `src/components/`.
 
-Before adding an import to anything under `src/core/`, check it doesn't pull
-in `vue`, `pdfjs-dist`, or any browser-only API.
+Before adding an import to anything under `packages/zugferd-validator/src/`
+or `src/core/`, check it doesn't pull in `vue`, `pdfjs-dist`, or any
+browser-only API.
 
 ## Non-negotiable money rule
 
 Never use `number` for a monetary or quantity value that came from the XML.
 Parse to `Big`, compute in `Big`, round only at defined boundaries, format to
-string for display. `src/core/money.ts` is the **only** module that imports
-`big.js`. See `SPEC.md` §5 for why (four-decimal unit prices, fractional
-quantities — integer cents don't work here).
+string for display. `packages/zugferd-validator/src/money.ts` is the
+**only** module that imports `big.js` — including in the main app: `src/`
+gets `Money`/`Quantity` values and formatting helpers from
+`zugferd-validator`'s public API, never `big.js` directly. See `SPEC.md`
+§5 for why (four-decimal unit prices, fractional quantities — integer
+cents don't work here).
 
 ## Language convention
 

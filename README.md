@@ -136,10 +136,7 @@ deliberate:
 
 ```
 src/
-  core/          framework-free, fully unit-tested (Node, no DOM/pdf.js)
-    money.ts       the only module that imports big.js
-    cii/            XML → typed domain model, profile detection
-    checks/         the rule registry + runner
+  core/          app-specific, framework-free (Node, no DOM/pdf.js)
     review/         Korrekturblatt model + CSV/JSON export
   pdf/           everything pdf.js: worker wiring, rendering, text-layer
                  extraction, text-location for the gutter
@@ -147,27 +144,61 @@ src/
                  review (per-position decisions, active highlight)
   components/    DropZone, PdfPane, PositionTable, FindingList,
                  ProfileBanner, ExportMenu, …
+
+packages/
+  zugferd-validator/   the parse/check engine (see below) — its own
+                       published package, not app-specific
+  design-system/       Storybook component library (Button, Badge,
+                       shared Tailwind tokens)
 ```
 
 Two rules hold the design together:
 
-- **`src/core/` knows nothing about Vue, the DOM, or pdf.js.** Pure
-  TypeScript in, pure TypeScript out. Everything uncertain or hard to test
-  (rendering, file I/O, text positioning) lives outside it, which is why
-  `core/` has near-total test coverage and the components have almost none —
-  that split is intentional.
+- **The parse/check engine knows nothing about Vue, the DOM, or pdf.js.**
+  Pure TypeScript in, pure TypeScript out. Everything uncertain or hard to
+  test (rendering, file I/O, text positioning) lives outside it, in `src/`.
+  This is enforced by more than convention now: it's a physically separate,
+  independently-publishable package (`packages/zugferd-validator`), so it's
+  structurally impossible for it to reach for `vue` or `pdfjs-dist`. That's
+  also why it has near-total test coverage and the components have almost
+  none — that split is intentional.
 - **Never use `number` for a monetary or quantity value from the XML.**
   Amounts are parsed to `Big`, computed in `Big`, and only rounded at
   defined boundaries. Unit prices in CII can carry four decimal places and
   quantities are fractional (2,5 m³) — integer cents can't represent
   `€0,0375 / Stück` without a second scaling concept, so `big.js` earns its
-  place. `money.ts` is the one module allowed to import it, and it's the one
-  module written test-first.
+  place. `money.ts` (inside the package) is the one module allowed to
+  import it, and it's the one module written test-first.
 
 Repo is an npm workspaces monorepo: the main app depends on
-`packages/design-system`, a small Storybook-based component library
-(`Button`, `Badge`, shared Tailwind design tokens) so the visual language
-has one source of truth.
+`packages/design-system` (a small Storybook-based component library —
+`Button`, `Badge`, shared Tailwind design tokens — so the visual language
+has one source of truth) and on `packages/zugferd-validator` the same way.
+
+### Also available as a standalone library
+
+The parsing and check-suite engine behind this app — CII XML parsing,
+ZUGFeRD profile detection, the full 13-rule EN 16931-mapped check suite,
+IBAN validation — is published on its own as
+[`zugferd-validator`](https://www.npmjs.com/package/zugferd-validator), an
+independent, framework-free npm package with no dependency on this app,
+Vue, or a browser:
+
+```bash
+npm install zugferd-validator
+```
+
+```ts
+import { parseCiiXml, runChecks, parseAmount } from 'zugferd-validator'
+
+const invoice = parseCiiXml(xmlString)
+const findings = runChecks(invoice, { tolerance: parseAmount('0.01')! })
+```
+
+See [`packages/zugferd-validator/README.md`](packages/zugferd-validator/README.md)
+for the full API. This app is one consumer of it, not a special case —
+`src/` depends on the published package the same way an external project
+would.
 
 ## Known limitations
 
@@ -223,7 +254,8 @@ Stated plainly rather than hidden:
 [![pdf.js](https://img.shields.io/badge/pdf.js-B0413E)](https://mozilla.github.io/pdf.js/)
 
 Vue 3 (`<script setup>`) · TypeScript (`strict: true`) · Vite · Vue Router ·
-Pinia · pdfjs-dist · fast-xml-parser · big.js · Tailwind CSS v4 · Vitest ·
+Pinia · pdfjs-dist · [`zugferd-validator`](https://www.npmjs.com/package/zugferd-validator)
+(this repo's own extracted parse/check engine) · Tailwind CSS v4 · Vitest ·
 ESLint + Prettier · GitHub Actions CI.
 
 ## Getting started
