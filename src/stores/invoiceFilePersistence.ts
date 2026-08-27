@@ -14,6 +14,12 @@ const DB_NAME = 'rechnungsabgleich'
 const DB_VERSION = 1
 const STORE_NAME = 'invoiceFiles'
 
+// Caps how many cached PDFs this store holds -- unlike tier 1, these are
+// full file blobs, so an unbounded cache is a real path to exhausting the
+// browser's IndexedDB quota. Oldest-`updatedAt` entries are evicted first
+// once this is exceeded (see saveInvoiceFile).
+export const MAX_ENTRIES = 20
+
 export interface SavedInvoiceEntry {
   key: string
   invoiceNumber: string
@@ -62,10 +68,34 @@ export async function saveInvoiceFile(
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
     })
+    await evictOldest(db)
     db.close()
   } catch {
     // best-effort, see module comment
   }
+}
+
+// Drops oldest-`updatedAt` entries beyond MAX_ENTRIES, as a read pass
+// followed by a delete pass -- two transactions on the same connection,
+// consistent with every other operation here using its own transaction
+// rather than interleaving reads and writes in one.
+async function evictOldest(db: IDBDatabase): Promise<void> {
+  const records = await new Promise<StoredInvoiceFile[]>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readonly')
+    const request = tx.objectStore(STORE_NAME).getAll()
+    request.onsuccess = () => resolve(request.result as StoredInvoiceFile[])
+    request.onerror = () => reject(request.error)
+  })
+  if (records.length <= MAX_ENTRIES) return
+  const oldestFirst = [...records].sort((a, b) => a.updatedAt.localeCompare(b.updatedAt))
+  const toDelete = oldestFirst.slice(0, records.length - MAX_ENTRIES)
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite')
+    const store = tx.objectStore(STORE_NAME)
+    for (const record of toDelete) store.delete(record.key)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
 }
 
 export async function loadInvoiceFile(key: string): Promise<File | null> {
