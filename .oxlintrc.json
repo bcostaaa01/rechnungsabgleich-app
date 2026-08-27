@@ -7,5 +7,12 @@
   "categories": {
     "correctness": "error"
   },
-  "ignorePatterns": ["examples/**"]
+  "ignorePatterns": [
+    "examples/**",
+    // Deploy output, not source -- docs/index.html is hand-authored, but
+    // docs/subcontractor-intake/ is a committed Vite build (see
+    // examples/subcontractor-intake/package.json's build:pages script).
+    // The minified bundle there isn't meant to be linted as source.
+    "docs/**"
+  ]
 }
