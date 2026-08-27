@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>zugferd-validator — docs</title>
+<meta name="description" content="Parse and validate ZUGFeRD/Factur-X e-invoices: profile detection, EN 16931 arithmetic checks, IBAN validation. Framework-free TypeScript, no DOM dependency." />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f7f8;
+    --ink: #17181a;
+    --muted: #5b6069;
+    --border: #e3e5e8;
+    --accent: #1f6feb;
+    --accent-ink: #0b3d91;
+    --error: #c02626;
+    --warning: #a15c00;
+    --code-bg: #0f1115;
+    --code-ink: #e6e8eb;
+    --radius: 8px;
+    font-family: -apple-system, "Segoe UI", Inter, Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115;
+      --bg-alt: #16181d;
+      --ink: #eceef1;
+      --muted: #9aa1ab;
+      --border: #2a2d33;
+      --accent: #6cb0ff;
+      --accent-ink: #a9d1ff;
+      --code-bg: #08090b;
+      --code-ink: #dfe2e6;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code, pre, kbd {
+    font-family: ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
+    font-size: 0.88em;
+  }
+  code {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    max-width: 1160px;
+    margin: 0 auto;
+    gap: 2.5rem;
+  }
+  header.hero {
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 1.5rem 2.5rem;
+  }
+  .hero-inner { max-width: 1160px; margin: 0 auto; }
+  .hero-inner h1 {
+    font-size: 2.1rem;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.02em;
+  }
+  .hero-inner p.tagline {
+    color: var(--muted);
+    font-size: 1.1rem;
+    max-width: 60ch;
+    margin: 0 0 1.4rem;
+  }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.4rem; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .install {
+    display: inline-block;
+  }
+
+  nav.toc {
+    padding: 2.5rem 0 2rem 1.5rem;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+  nav.toc h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 1.3rem 0 0.5rem;
+  }
+  nav.toc h2:first-child { margin-top: 0; }
+  nav.toc ul { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin: 0.15rem 0; }
+  nav.toc a {
+    color: var(--ink);
+    font-size: 0.92rem;
+    display: block;
+    padding: 0.15rem 0;
+  }
+  nav.toc a:hover { color: var(--accent); text-decoration: none; }
+
+  main { padding: 2.5rem 1.5rem 5rem 0; min-width: 0; }
+  main section { margin-bottom: 3.2rem; scroll-margin-top: 1.5rem; }
+  main h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+  main h3 {
+    font-size: 1.15rem;
+    margin-top: 2rem;
+  }
+  main p { color: var(--ink); max-width: 72ch; }
+  main p.lede { color: var(--muted); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 1rem 0;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.7rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  td code { white-space: nowrap; }
+
+  .api-entry {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    background: var(--bg-alt);
+  }
+  .api-entry h4 {
+    margin: 0 0 0.5rem;
+    font-family: ui-monospace, "SF Mono", Consolas, monospace;
+    font-size: 0.98rem;
+  }
+  .api-entry p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+  .kind {
+    display: inline-block;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-ink);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+
+  ul.limitations li { margin-bottom: 0.6rem; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 1.5rem 3rem;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  footer .footer-inner { max-width: 1160px; margin: 0 auto; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static; padding: 1.5rem; border-bottom: 1px solid var(--border); max-height: none; }
+    main { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="badges">
+      <span class="badge">MIT license</span>
+      <span class="badge">TypeScript, strict</span>
+      <span class="badge">0 DOM dependencies</span>
+    </div>
+    <h1>zugferd-validator</h1>
+    <p class="tagline">
+      Parse and validate ZUGFeRD/Factur-X e-invoices — profile detection, an
+      EN&nbsp;16931-mapped arithmetic check suite, and IBAN validation. Pure
+      TypeScript, runs anywhere Node or a bundler does.
+    </p>
+    <pre class="install"><code>npm install zugferd-validator</code></pre>
+    <p>
+      <a href="https://www.npmjs.com/package/zugferd-validator">npm</a> ·
+      <a href="https://github.com/bcostaaa01/rechnungsabgleich-app/tree/main/packages/zugferd-validator">source</a> ·
+      extracted from <a href="https://github.com/bcostaaa01/rechnungsabgleich-app">rechnungsabgleich</a>,
+      a browser-based ZUGFeRD/Factur-X reviewer this package is the engine behind
+    </p>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Table of contents">
+    <h2>Guide</h2>
+    <ul>
+      <li><a href="#usage">Usage</a></li>
+      <li><a href="#rules">Rule catalogue</a></li>
+      <li><a href="#limitations">Known limitations</a></li>
+    </ul>
+    <h2>API — parsing</h2>
+    <ul>
+      <li><a href="#parseCiiXml">parseCiiXml</a></li>
+      <li><a href="#detectProfile">detectProfile</a></li>
+      <li><a href="#unitLabel">unitLabel</a></li>
+    </ul>
+    <h2>API — checks</h2>
+    <ul>
+      <li><a href="#runChecks">runChecks</a></li>
+      <li><a href="#rules-export">rules</a></li>
+      <li><a href="#types-checks">Finding, Severity, CheckContext, Rule</a></li>
+    </ul>
+    <h2>API — domain types</h2>
+    <ul>
+      <li><a href="#types-domain">Invoice and friends</a></li>
+    </ul>
+    <h2>API — money &amp; IBAN</h2>
+    <ul>
+      <li><a href="#money">Money helpers</a></li>
+      <li><a href="#iban">isValidIban, formatIban</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <section id="usage">
+      <h2>Usage</h2>
+      <p class="lede">Parse the CII XML embedded in a ZUGFeRD/Factur-X PDF (or a standalone XRechnung XML), then run the check suite against it.</p>
+      <pre><code>import { parseCiiXml, runChecks, parseAmount } from 'zugferd-validator'
+
+const invoice = parseCiiXml(xmlString)
+
+const findings = runChecks(invoice, {
+  tolerance: parseAmount('0.01')!, // a Money value, not a plain number
+  // pdfText: extractedPdfText,    // optional -- enables R-PDF-01/02/03
+})
+
+for (const finding of findings) {
+  console.log(finding.ruleId, finding.severity, finding.messageDe)
+}</code></pre>
+      <p><code>parseCiiXml</code> throws on structurally malformed XML — missing required
+      fields, an unsupported date format, no <code>rsm:CrossIndustryInvoice</code> root.
+      Wrap it in a <code>try</code>/<code>catch</code> if the input isn't already known-good.</p>
+      <p><code>MINIMUM</code> and <code>BASIC WL</code> ZUGFeRD profiles carry no line
+      items — <code>runChecks</code> already filters out line-item/VAT-breakdown-dependent
+      rules for those via <code>invoice.capabilities</code>, so you don't need to
+      special-case it.</p>
+    </section>
+
+    <section id="rules">
+      <h2>Rule catalogue</h2>
+      <p class="lede">13 rules, each a pure function of <code>(invoice, ctx) → Finding[]</code>, mapped to their EN&nbsp;16931 business rule where one exists. Available at runtime as <code>rules</code> (id, description, and gating flags included).</p>
+      <table>
+        <thead>
+          <tr><th>Rule</th><th>Checks</th><th>EN 16931</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>R-LINE-01</code></td><td>Menge ÷ Basismenge × Einzelpreis = Positions-Nettobetrag</td><td>—</td></tr>
+          <tr><td><code>R-SUM-01</code></td><td>Σ Positions-Nettobeträge = Rechnungs-Nettobetrag</td><td>BR-CO-10</td></tr>
+          <tr><td><code>R-BASIS-01</code></td><td>Nettobetrag − Abschläge + Zuschläge = Steuerbemessungsgrundlage</td><td>BR-CO-13</td></tr>
+          <tr><td><code>R-VAT-01</code></td><td>Σ Netto je Steuersatz = Bemessungsgrundlage</td><td>BR-S-08</td></tr>
+          <tr><td><code>R-VAT-02</code></td><td>Bemessungsgrundlage × Steuersatz ÷ 100 = Steuerbetrag</td><td>BR-S-09</td></tr>
+          <tr><td><code>R-VAT-03</code></td><td>Σ Steuerbeträge = Steuergesamtbetrag</td><td>—</td></tr>
+          <tr><td><code>R-TOTAL-01</code></td><td>Steuerbemessungsgrundlage + Steuergesamtbetrag = Bruttobetrag</td><td>BR-CO-15</td></tr>
+          <tr><td><code>R-TOTAL-02</code></td><td>Bruttobetrag − gezahlter Betrag = Zahlbetrag</td><td>BR-CO-16</td></tr>
+          <tr><td><code>R-CUR-01</code></td><td>Alle Beträge verwenden dieselbe Währung</td><td>—</td></tr>
+          <tr><td><code>R-PDF-01</code></td><td>Bruttobetrag ist im übergebenen <code>pdfText</code> auffindbar</td><td>—</td></tr>
+          <tr><td><code>R-PDF-02</code></td><td>Rechnungsnummer ist im übergebenen <code>pdfText</code> auffindbar</td><td>—</td></tr>
+          <tr><td><code>R-PDF-03</code></td><td>IBAN ist im übergebenen <code>pdfText</code> auffindbar</td><td>—</td></tr>
+          <tr><td><code>R-IBAN-01</code></td><td>IBAN besteht die ISO 7064 MOD-97-10-Prüfsumme</td><td>—</td></tr>
+        </tbody>
+      </table>
+      <p><code>R-PDF-01/02/03</code> cross-check invoice values against the PDF's visible
+      text, if you pass <code>pdfText</code> — extract that however you like (pdf.js,
+      a Python PDF library, your own pipeline); this package has no opinion on how you
+      got the text, only on what it's checked against. <code>Finding.messageDe</code>
+      is German — see <a href="#limitations">Known limitations</a>.</p>
+    </section>
+
+    <section id="limitations">
+      <h2>Known limitations</h2>
+      <ul class="limitations">
+        <li><strong>German-only messages.</strong> <code>Finding.messageDe</code> is
+        German-language text — the domain vocabulary (Rechnungsnummer, Steuersatz,
+        etc.) is inherently German. Not internationalized; <code>ruleId</code> and
+        <code>severity</code> are stable, locale-independent fields if you need to
+        build your own messages.</li>
+        <li><strong>Not full EN 16931 conformance validation.</strong> This checks
+        internal arithmetic consistency — does the invoice add up to itself — not
+        full standard conformance. See the
+        <a href="https://github.com/itplr-kosit/validator-configuration-xrechnung">KoSIT validator</a>
+        for that.</li>
+        <li><strong>IBAN shape, not per-country length.</strong> Checksum (ISO 7064
+        MOD-97-10) and general shape (ISO 13616) are validated, not the exact BBAN
+        length per country — a 34+-country length table is real external data with
+        its own maintenance surface.</li>
+      </ul>
+    </section>
+
+    <h2 style="border:none; margin-bottom:0.5rem;">API reference</h2>
+    <p class="lede" style="margin-top:0;">Grouped the same way as the package's public
+    barrel (<code>src/index.ts</code>) — everything here is a named export from
+    <code>'zugferd-validator'</code>.</p>
+
+    <section id="parseCiiXml">
+      <h3>Parsing &amp; profile</h3>
+      <div class="api-entry">
+        <h4 id="parseCiiXml-fn"><span class="kind">function</span>parseCiiXml(xml: string): Invoice</h4>
+        <p>Parses CII XML (the format embedded in ZUGFeRD/Factur-X, or standalone
+        XRechnung) into a typed <code>Invoice</code>. Throws on malformed input.</p>
+      </div>
+      <div class="api-entry" id="detectProfile">
+        <h4><span class="kind">function</span>detectProfile(guidelineId?: string): { profile: ZugferdProfile; capabilities: ProfileCapabilities }</h4>
+        <p>Classifies the ZUGFeRD/Factur-X guideline URN into a profile and its
+        capability flags (line items? VAT breakdown? payment terms?). Called
+        internally by <code>parseCiiXml</code>; exported for standalone use.</p>
+      </div>
+      <div class="api-entry" id="unitLabel">
+        <h4><span class="kind">function</span>unitLabel(unitCode: string): string</h4>
+        <p>UN/ECE Rec. 20 unit code → German display label (<code>MTQ → "m³"</code>,
+        <code>TNE → "t"</code>, …). Falls back to the raw code for anything not in
+        the table.</p>
+      </div>
+    </section>
+
+    <section id="runChecks">
+      <h3 style="margin-top:0;">Checks</h3>
+      <div class="api-entry">
+        <h4><span class="kind">function</span>runChecks(invoice: Invoice, ctx: CheckContext): Finding[]</h4>
+        <p>Runs every rule whose gating flags the invoice's <code>capabilities</code>
+        satisfy, and flattens their findings. This is the one function you need for
+        "give me every problem with this invoice."</p>
+      </div>
+      <div class="api-entry" id="rules-export">
+        <h4><span class="kind">const</span>rules: RuleEntry[]</h4>
+        <p>The full rule catalogue (see <a href="#rules">above</a>) as data — each
+        entry carries <code>id</code>, the underlying <code>rule</code> function,
+        a German <code>descriptionDe</code>, an optional EN 16931
+        <code>businessRule</code> code, and the <code>requiresLineItems</code> /
+        <code>requiresVatBreakdown</code> gating flags <code>runChecks</code> filters on.</p>
+      </div>
+      <div class="api-entry" id="types-checks">
+        <h4><span class="kind">type</span>Finding, Severity, FindingTarget, CheckContext, Rule</h4>
+        <p><code>Severity</code> is <code>'error' | 'warning' | 'info'</code> —
+        a difference beyond your <code>tolerance</code> is an error, within it a
+        warning. <code>CheckContext</code> is <code>{ tolerance: Money; pdfText?: string }</code>.
+        <code>Rule</code> is the function shape every entry in <code>rules</code>
+        implements: <code>(invoice, ctx) =&gt; Finding[]</code>.</p>
+      </div>
+    </section>
+
+    <section id="types-domain">
+      <h3 style="margin-top:0;">Domain types</h3>
+      <div class="api-entry">
+        <h4><span class="kind">type</span>Invoice</h4>
+        <p><code>profile</code>, <code>capabilities</code>, <code>invoiceNumber</code>,
+        <code>issueDate</code>, <code>currency</code>, <code>seller</code>/<code>buyer</code>
+        (<code>Party</code>), <code>lines</code> (<code>InvoiceLine[]</code>, empty for
+        MINIMUM/BASIC WL), <code>vatBreakdown</code> (<code>VatBreakdownEntry[]</code>),
+        <code>totals</code> (<code>InvoiceTotals</code>), optional
+        <code>paymentTermsText</code> and <code>iban</code>.</p>
+        <p>Also exported: <code>InvoiceLine</code>, <code>Party</code>,
+        <code>VatBreakdownEntry</code>, <code>InvoiceTotals</code>,
+        <code>ZugferdProfile</code>, <code>ProfileCapabilities</code> — the full
+        shapes are in the
+        <a href="https://github.com/bcostaaa01/rechnungsabgleich-app/blob/main/packages/zugferd-validator/src/cii/types.ts">source</a>.</p>
+      </div>
+    </section>
+
+    <section id="money">
+      <h3 style="margin-top:0;">Money</h3>
+      <p>Amounts are <a href="https://github.com/MikeMcl/big.js">big.js</a>
+      <code>Big</code> instances throughout, never plain <code>number</code> — CII
+      unit prices can carry four decimal places, and integer cents can't represent
+      <code>€0.0375</code> per unit without a second scaling concept.</p>
+      <div class="api-entry">
+        <h4><span class="kind">type</span>Money, Quantity</h4>
+        <p>Both are aliases for <code>Big</code>. <code>Money</code> for amounts,
+        <code>Quantity</code> for billed/basis quantities — same underlying type,
+        named for what they mean at each call site.</p>
+      </div>
+      <div class="api-entry">
+        <h4><span class="kind">function</span>parseAmount(raw: string | undefined): Money | null</h4>
+        <p>The only sanctioned way to construct a <code>Money</code> value from
+        outside the package — there's no re-exported <code>Big</code> constructor.
+        Returns <code>null</code> for <code>undefined</code>, empty, or unparseable input.</p>
+      </div>
+      <div class="api-entry">
+        <h4><span class="kind">function</span>add(...values: Money[]): Money · multiply(a, b): Money · round2(value): Money · equalWithin(a, b, tolerance): boolean</h4>
+        <p><code>round2</code> is half-up ("kaufmännisch") — EN 16931 doesn't mandate
+        a rounding method, so this is a documented choice, not an assumption.</p>
+      </div>
+      <div class="api-entry">
+        <h4><span class="kind">function</span>formatEUR(value: Money): string · formatQuantity(value: Quantity): string</h4>
+        <p>German/Austrian locale formatting — <code>formatEUR</code> → <code>"1.234,56 €"</code>,
+        <code>formatQuantity</code> → thousands-separated with a decimal comma, no
+        forced decimals for whole numbers.</p>
+      </div>
+    </section>
+
+    <section id="iban">
+      <h3 style="margin-top:0;">IBAN</h3>
+      <div class="api-entry">
+        <h4><span class="kind">function</span>isValidIban(iban: string): boolean</h4>
+        <p>ISO 7064 MOD-97-10 checksum + general ISO 13616 shape (2-letter country
+        code, 2 check digits, 11–30 alphanumerics) — not a per-country exact-length
+        table; see <a href="#limitations">limitations</a>.</p>
+      </div>
+      <div class="api-entry">
+        <h4><span class="kind">function</span>formatIban(iban: string): string</h4>
+        <p>Groups into blocks of 4 for display, the way IBANs are conventionally
+        printed: <code>DE89 3704 0044 0532 0130 00</code>.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    MIT licensed · part of the
+    <a href="https://github.com/bcostaaa01/rechnungsabgleich-app">rechnungsabgleich</a> monorepo ·
+    <a href="https://github.com/bcostaaa01/rechnungsabgleich-app/tree/main/packages/zugferd-validator">package source</a>
+  </div>
+</footer>
+
+</body>
+</html>

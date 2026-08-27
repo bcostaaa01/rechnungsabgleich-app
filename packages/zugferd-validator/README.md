@@ -9,6 +9,8 @@ Extracted from [rechnungsabgleich](https://github.com/bcostaaa01/rechnungsabglei
 a browser-based ZUGFeRD/Factur-X reviewer, where this is the framework-free
 engine behind the UI.
 
+Full API reference: **[bcostaaa01.github.io/rechnungsabgleich-app](https://bcostaaa01.github.io/rechnungsabgleich-app/)**
+
 ## Install
 
 ```bash

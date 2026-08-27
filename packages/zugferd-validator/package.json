@@ -18,6 +18,7 @@
     "url": "https://github.com/bcostaaa01/rechnungsabgleich-app.git",
     "directory": "packages/zugferd-validator"
   },
+  "homepage": "https://bcostaaa01.github.io/rechnungsabgleich-app/",
   "author": "Bruno",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

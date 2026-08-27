@@ -195,10 +195,10 @@ const invoice = parseCiiXml(xmlString)
 const findings = runChecks(invoice, { tolerance: parseAmount('0.01')! })
 ```
 
-See [`packages/zugferd-validator/README.md`](packages/zugferd-validator/README.md)
-for the full API. This app is one consumer of it, not a special case —
-`src/` depends on the published package the same way an external project
-would.
+Full docs: **[bcostaaa01.github.io/rechnungsabgleich-app](https://bcostaaa01.github.io/rechnungsabgleich-app/)**
+(source: [`packages/zugferd-validator/README.md`](packages/zugferd-validator/README.md)).
+This app is one consumer of it, not a special case — `src/` depends on the
+published package the same way an external project would.
 
 ## Known limitations
 
