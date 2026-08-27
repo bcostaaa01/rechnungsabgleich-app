@@ -1,0 +1,47 @@
+{
+  "name": "zugferd-validator",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Parse and validate ZUGFeRD/Factur-X e-invoices (CII XML): profile detection, EN 16931 arithmetic checks, IBAN validation. Framework-free, no DOM dependency.",
+  "keywords": [
+    "zugferd",
+    "factur-x",
+    "e-invoice",
+    "en16931",
+    "xrechnung",
+    "cii",
+    "invoice-validation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcostaaa01/rechnungsabgleich-app.git",
+    "directory": "packages/zugferd-validator"
+  },
+  "author": "Bruno",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepare": "npm run build",
+    "type-check": "tsc --build"
+  },
+  "dependencies": {
+    "big.js": "^7.0.1",
+    "fast-xml-parser": "^5.10.1"
+  },
+  "devDependencies": {
+    "@types/big.js": "^7.0.0",
+    "@types/node": "^24.13.3",
+    "typescript": "~6.0.0"
+  }
+}

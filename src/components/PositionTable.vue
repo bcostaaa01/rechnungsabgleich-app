@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { InvoiceLine } from '@/core/cii/types'
-import type { Finding } from '@/core/checks/types'
-import { formatEUR, formatQuantity } from '@/core/money'
-import { unitLabel } from '@/core/cii/units'
+import type { InvoiceLine, Finding } from 'zugferd-validator'
+import { formatEUR, formatQuantity, unitLabel } from 'zugferd-validator'
 import { amountSearchText } from '@/pdf/locate'
 import { useReviewStore } from '@/stores/review'
 import { Tooltip } from '@rechnungsabgleich/design-system'

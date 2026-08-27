@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Invoice } from '@/core/cii/types'
-import type { Finding } from '@/core/checks/types'
+import type { Invoice, Finding } from 'zugferd-validator'
 import type { PositionReview } from '@/core/review/types'
 import { buildKorrekturblatt } from '@/core/review/korrekturblatt'
 import { korrekturblattToCsv } from '@/core/review/csv'

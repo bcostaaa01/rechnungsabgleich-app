@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { korrekturblattToCsv } from '@/core/review/csv'
 import { buildKorrekturblatt } from '@/core/review/korrekturblatt'
-import { makeInvoice } from '../checks/fixtures'
+import { makeInvoice } from './fixtures'
 
 describe('korrekturblattToCsv', () => {
   it('semicolon-delimits and never breaks on the decimal comma in formatted amounts', () => {

@@ -1,5 +1,5 @@
-import { formatEUR } from '@/core/money'
-import type { Money } from '@/core/money'
+import { formatEUR } from 'zugferd-validator'
+import type { Money } from 'zugferd-validator'
 import type { PositionedTextItem } from '@/pdf/textLayer'
 
 export interface Rect {

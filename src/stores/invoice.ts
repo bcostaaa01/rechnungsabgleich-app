@@ -1,10 +1,7 @@
-import Big from 'big.js'
 import { defineStore } from 'pinia'
 import { ref, shallowRef } from 'vue'
-import type { Invoice } from '@/core/cii/types'
-import { parseCiiXml } from '@/core/cii/parse'
-import type { Finding } from '@/core/checks/types'
-import { runChecks } from '@/core/checks/runner'
+import type { Invoice, Finding } from 'zugferd-validator'
+import { parseCiiXml, runChecks, parseAmount } from 'zugferd-validator'
 import { loadDocument } from '@/pdf/loadDocument'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
@@ -15,7 +12,8 @@ import { loadInvoiceFile, saveInvoiceFile } from '@/stores/invoiceFilePersistenc
 
 // SPEC.md §6: default ±0,01, user-adjustable in the UI eventually -- no
 // such control exists yet, so this stays a fixed constant for now.
-const DEFAULT_TOLERANCE = new Big('0.01')
+// Non-null assertion is safe: '0.01' is a hardcoded, always-valid literal.
+const DEFAULT_TOLERANCE = parseAmount('0.01')!
 
 // SPEC.md §7: "Loading -- progress for parse and render separately." Each
 // id corresponds to one real await in loadFromFile below, in order -- this

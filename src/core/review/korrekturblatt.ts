@@ -1,7 +1,5 @@
-import type { Invoice } from '@/core/cii/types'
-import type { Finding } from '@/core/checks/types'
-import { formatEUR, formatQuantity } from '@/core/money'
-import { unitLabel } from '@/core/cii/units'
+import type { Invoice, Finding } from 'zugferd-validator'
+import { formatEUR, formatQuantity, unitLabel } from 'zugferd-validator'
 import type { PositionReview, ReviewStatus } from './types'
 
 export type KorrekturblattStatus = 'akzeptiert' | 'geflaggt' | 'unentschieden'

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { buildKorrekturblatt } from '@/core/review/korrekturblatt'
 import type { PositionReview } from '@/core/review/types'
-import type { Finding } from '@/core/checks/types'
-import { makeInvoice } from '../checks/fixtures'
+import type { Finding } from 'zugferd-validator'
+import { makeInvoice } from './fixtures'
 
 describe('buildKorrekturblatt', () => {
   it('defaults every line to unentschieden with no note when there are no decisions', () => {

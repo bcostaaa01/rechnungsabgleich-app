@@ -5,8 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import type { PDFDocumentProxy } from '@/pdf/pdfjs'
 import { findCiiXmlAttachment } from '@/pdf/extractAttachments'
 import { getDocumentTextLayers, layersToPlainText } from '@/pdf/textLayer'
-import { parseCiiXml } from '@/core/cii/parse'
-import { runChecks } from '@/core/checks/runner'
+import { parseCiiXml, runChecks } from 'zugferd-validator'
 import { locateIban } from '@/pdf/locate'
 
 // Same reasoning as the other pdf/ fixture tests: jsdom has no DOMMatrix,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ProfileCapabilities, ZugferdProfile } from '@/core/cii/types'
+import type { ProfileCapabilities, ZugferdProfile } from 'zugferd-validator'
 
 defineProps<{
   profile: ZugferdProfile

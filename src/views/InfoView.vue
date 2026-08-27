@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { rules } from '@/core/checks/rules'
+import { rules } from 'zugferd-validator'
 </script>
 
 <template>

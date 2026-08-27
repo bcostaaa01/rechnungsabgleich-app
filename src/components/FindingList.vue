@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Finding } from '@/core/checks/types'
-import { rules } from '@/core/checks/rules'
+import type { Finding } from 'zugferd-validator'
+import { rules } from 'zugferd-validator'
 import { amountSearchText } from '@/pdf/locate'
 import { useReviewStore } from '@/stores/review'
 import { Badge } from '@rechnungsabgleich/design-system'
