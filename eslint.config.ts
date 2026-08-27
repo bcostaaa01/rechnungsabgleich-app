@@ -16,7 +16,15 @@ export default defineConfigWithVueTs(
     files: ['**/*.{vue,ts,mts,tsx}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+  globalIgnores([
+    '**/dist/**',
+    '**/dist-ssr/**',
+    '**/coverage/**',
+    // Its own standalone React project (deliberately not an npm workspace
+    // member -- see examples/subcontractor-intake/README.md) -- the Vue-
+    // flavored config below (pluginVue, vueTsConfigs) doesn't apply to it.
+    'examples/**',
+  ]),
 
   ...pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
