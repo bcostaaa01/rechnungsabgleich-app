@@ -77,6 +77,16 @@
   }
   pre code { background: none; border: none; padding: 0; color: inherit; }
 
+  /* Syntax highlighting for code.language-ts blocks (see the script at the
+     end of the page). Fixed palette, not theme-aware -- pre/code keeps a
+     dark background in both light and dark page themes, so one palette
+     covers both. */
+  .tok-keyword { color: #c792ea; }
+  .tok-string { color: #98c379; }
+  .tok-comment { color: #7f848e; font-style: italic; }
+  .tok-fn { color: #61afef; }
+  .tok-num { color: #d19a66; }
+
   .layout {
     display: grid;
     grid-template-columns: 240px minmax(0, 1fr);
@@ -327,7 +337,7 @@
     <section id="usage">
       <h2>Usage</h2>
       <p class="lede">Parse the CII XML embedded in a ZUGFeRD/Factur-X PDF (or a standalone XRechnung XML), then run the check suite against it.</p>
-      <pre><code>import { parseCiiXml, runChecks, parseAmount } from 'zugferd-validator'
+      <pre><code class="language-ts">import { parseCiiXml, runChecks, parseAmount } from 'zugferd-validator'
 
 const invoice = parseCiiXml(xmlString)
 
@@ -525,5 +535,40 @@ for (const finding of findings) {
   </div>
 </footer>
 
+<script>
+  // Tiny self-contained TS/JS tokenizer -- no CDN, no build step, matching
+  // the rest of this page. Only needs to handle the syntax actually used
+  // in the usage example above: import/const/for-of, string/template
+  // literals, line comments, and function calls.
+  (function highlightCode() {
+    var TOKEN_RE = /(\/\/[^\n]*)|('(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|`(?:\\.|[^`\\])*`)|(\b(?:import|from|export|default|const|let|var|function|return|if|else|for|of|in|new|typeof|class|interface|type|extends|implements|async|await|try|catch|throw|void|null|undefined|true|false)\b)|([A-Za-z_$][\w$]*)(?=\()|(\b\d+(?:\.\d+)?\b)/g
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    }
+
+    function highlight(code) {
+      var out = ''
+      var last = 0
+      var m
+      TOKEN_RE.lastIndex = 0
+      while ((m = TOKEN_RE.exec(code))) {
+        out += escapeHtml(code.slice(last, m.index))
+        if (m[1]) out += '<span class="tok-comment">' + escapeHtml(m[1]) + '</span>'
+        else if (m[2]) out += '<span class="tok-string">' + escapeHtml(m[2]) + '</span>'
+        else if (m[3]) out += '<span class="tok-keyword">' + escapeHtml(m[3]) + '</span>'
+        else if (m[4]) out += '<span class="tok-fn">' + escapeHtml(m[4]) + '</span>'
+        else if (m[5]) out += '<span class="tok-num">' + escapeHtml(m[5]) + '</span>'
+        last = TOKEN_RE.lastIndex
+      }
+      out += escapeHtml(code.slice(last))
+      return out
+    }
+
+    document.querySelectorAll('code.language-ts').forEach(function (el) {
+      el.innerHTML = highlight(el.textContent)
+    })
+  })()
+</script>
 </body>
 </html>
