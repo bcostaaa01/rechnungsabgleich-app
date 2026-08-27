@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { STORAGE_KEY, hashXml, loadReview, saveReview } from './reviewPersistence'
+import { MAX_ENTRIES, STORAGE_KEY, hashXml, loadReview, saveReview } from './reviewPersistence'
 
 beforeEach(() => localStorage.clear())
 
@@ -56,5 +56,37 @@ describe('loadReview / saveReview', () => {
   it('falls back to null when storage content is corrupted', () => {
     localStorage.setItem(STORAGE_KEY, 'not json')
     expect(loadReview('anything')).toBeNull()
+  })
+})
+
+// `updatedAt` is millisecond-resolution and eviction breaks ties on it, so
+// tests that depend on a specific save order need saves spread across
+// distinct milliseconds -- otherwise tie-breaking falls back to
+// Object.keys() insertion order, which happens to match here but shouldn't
+// be relied on.
+async function saveNumbered(keys: string[]): Promise<void> {
+  for (const [i, key] of keys.entries()) {
+    saveReview(key, { invoiceNumber: `RE-${i}`, sellerName: 'X' }, {
+      '1': { status: 'accepted', note: '' },
+    })
+    await new Promise((resolve) => setTimeout(resolve, 2))
+  }
+}
+
+describe('eviction', () => {
+  it('keeps at most MAX_ENTRIES invoices in storage', async () => {
+    const keys = Array.from({ length: MAX_ENTRIES + 5 }, (_, i) => hashXml(`invoice-${i}`))
+    await saveNumbered(keys)
+
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!) as { invoices: object }
+    expect(Object.keys(stored.invoices)).toHaveLength(MAX_ENTRIES)
+  })
+
+  it('drops the oldest entries first, keeping the most recently saved ones', async () => {
+    const keys = Array.from({ length: MAX_ENTRIES + 1 }, (_, i) => hashXml(`invoice-${i}`))
+    await saveNumbered(keys)
+
+    expect(loadReview(keys[0]!)).toBeNull()
+    expect(loadReview(keys[keys.length - 1]!)).toEqual({ '1': { status: 'accepted', note: '' } })
   })
 })

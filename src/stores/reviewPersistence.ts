@@ -6,6 +6,12 @@ import type { PositionReview } from '@/core/review/types'
 // / "no multi-invoice management" -- see CLAUDE.md's Tech stack section.
 export const STORAGE_KEY = 'rechnungsabgleich:reviews:v1'
 
+// Caps how many invoices' worth of review decisions this cache holds.
+// Without a cap, an unbounded number of past invoices accumulate in
+// localStorage forever -- oldest-`updatedAt` entries are evicted first once
+// this is exceeded (see saveReview).
+export const MAX_ENTRIES = 20
+
 export interface PersistedInvoiceReview {
   invoiceNumber: string
   sellerName: string
@@ -74,5 +80,22 @@ export function saveReview(
     updatedAt: new Date().toISOString(),
     decisions,
   }
+  evictOldest(file)
   writeAll(file)
+}
+
+// Drops oldest-`updatedAt` entries in place until at most MAX_ENTRIES
+// remain. Called after every save rather than on a timer -- this cache is
+// small enough (per-invoice JSON, no PDF bytes) that trimming on write is
+// cheap and keeps the eviction logic co-located with the one place size
+// grows.
+function evictOldest(file: PersistedReviewsFile): void {
+  const keys = Object.keys(file.invoices)
+  if (keys.length <= MAX_ENTRIES) return
+  const oldestFirst = keys.sort((a, b) =>
+    file.invoices[a]!.updatedAt.localeCompare(file.invoices[b]!.updatedAt),
+  )
+  for (const key of oldestFirst.slice(0, keys.length - MAX_ENTRIES)) {
+    delete file.invoices[key]
+  }
 }
