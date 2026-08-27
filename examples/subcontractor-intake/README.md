@@ -5,6 +5,11 @@ for [`zugferd-validator`](https://www.npmjs.com/package/zugferd-validator):
 a general contractor batch-validating a stack of subcontractor invoices
 before they reach accounting.
 
+**[Try it live](https://bcostaaa01.github.io/rechnungsabgleich-app/subcontractor-intake/)** —
+built and deployed to the same GitHub Pages site as the package's
+[docs](https://bcostaaa01.github.io/rechnungsabgleich-app/) via `npm run build:pages`
+(see `package.json`), which outputs straight into `../../docs/subcontractor-intake/`.
+
 **Deliberately a different stack than the main app.** `rechnungsabgleich`
 (the project this package was extracted from) is Vue; this is React. The
 point is to demonstrate that `zugferd-validator` is genuinely

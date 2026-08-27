@@ -200,6 +200,13 @@ Full docs: **[bcostaaa01.github.io/rechnungsabgleich-app](https://bcostaaa01.git
 This app is one consumer of it, not a special case — `src/` depends on the
 published package the same way an external project would.
 
+A second, independent consumer lives at
+[`examples/subcontractor-intake`](examples/subcontractor-intake) — a small
+React app (deliberately not Vue) demonstrating a construction-industry use
+case: a general contractor batch-validating a stack of subcontractor
+invoices before they reach accounting.
+**[Try it live](https://bcostaaa01.github.io/rechnungsabgleich-app/subcontractor-intake/).**
+
 ## Known limitations
 
 Stated plainly rather than hidden:

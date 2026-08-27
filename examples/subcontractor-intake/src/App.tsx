@@ -60,7 +60,8 @@ export default function App() {
           {flaggedCount === 1 ? 'benötigt' : 'benötigen'} manuelle Prüfung, bevor sie an die
           Buchhaltung weitergehen. Validiert client-seitig mit{' '}
           <a href="https://www.npmjs.com/package/zugferd-validator">zugferd-validator</a> — kein
-          Backend, keine der fünf Rechnungen verlässt diesen Browser.
+          Backend, keine der fünf Rechnungen verlässt diesen Browser. Volle
+          API-Referenz: <a href="../">Docs</a>.
         </p>
       </header>
 

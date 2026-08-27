@@ -62,6 +62,24 @@
     align-items: center;
     gap: 0.3em;
   }
+  .example-callout {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 1.6rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-alt);
+    max-width: 60ch;
+  }
+  .example-callout .icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--accent);
+  }
+  .example-callout p { margin: 0; }
+  .example-callout strong { display: block; margin-bottom: 0.15rem; }
   code {
     background: var(--bg-alt);
     border: 1px solid var(--border);
@@ -273,6 +291,17 @@
       extracted from <a href="https://github.com/bcostaaa01/rechnungsabgleich-app">rechnungsabgleich</a>,
       a browser-based ZUGFeRD/Factur-X reviewer this package is the engine behind
     </p>
+    <div class="example-callout">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5" /><path d="M14 6a6 6 0 0 1 6 6v3" /><path d="M4 15v-3a6 6 0 0 1 6-6" /><rect x="2" y="15" width="20" height="4" rx="1" />
+      </svg>
+      <p>
+        <strong>Worked example: subcontractor invoice intake</strong>
+        A general contractor batch-validating five subcontractor invoices
+        before accounting — <a href="subcontractor-intake/">try it live</a>
+        (<a href="https://github.com/bcostaaa01/rechnungsabgleich-app/tree/main/examples/subcontractor-intake">source</a>, React, no backend).
+      </p>
+    </div>
   </div>
 </header>
 
